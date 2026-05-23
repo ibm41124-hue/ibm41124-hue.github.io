@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using BahireHasab.Core
 @using System.IO
 @inject IJSRuntime JS
@@ -8,15 +8,15 @@
 <div class="container py-5">
     <!-- Header Section -->
     <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-primary">ባሕረ ሐሳብ — Bahire Hasab</h1> 
-<button class="no-print" @onclick="PrintPage">
-    Download as PDF
-</button>
+        <h1 class="display-4 fw-bold text-primary">ባሕረ ሐሳብ — Bahire Hasab</h1>
+        <button class="no-print btn btn-outline-secondary btn-sm mb-2" @onclick="PrintPage">
+            🖨️ Download as PDF
+        </button>
         <p class="lead text-muted">Calculate Ethiopian Fasting Days and Liturgical Holidays using modern .NET technology</p>
     </div>
 
-    <!-- Input Form Card -->
-    <div class="card shadow-sm border-0 max-width-form mx-auto mb-5 p-4 bg-light">
+    <!-- Input Form Card (hidden during print) -->
+    <div class="no-print card shadow-sm border-0 max-width-form mx-auto mb-5 p-4 bg-light">
         <div class="row g-3 align-items-center justify-content-center">
             <div class="col-md-7">
                 <label for="yearInput" class="form-label fw-semibold text-secondary">Enter Ethiopian Year (E.C.)</label>
@@ -34,36 +34,38 @@
     <!-- Results Display -->
     @if (holidaysList != null && holidaysList.Any())
     {
-        <div class="mb-4 max-width-results mx-auto">
-            <h2 class="h3 fw-bold text-dark m-0">Results for the Year @inputYear E.C.</h2>
-        </div>
-        <hr class="mb-4" />
+        <div class="print-area">
+            <div class="mb-4 max-width-results mx-auto">
+                <h2 class="h3 fw-bold text-dark m-0">Results for the Year @inputYear E.C.</h2>
+            </div>
+            <hr class="mb-4" />
 
-        <div class="row g-4">
-            @foreach (var item in holidaysList)
-            {
-                <div class="col-sm-12 col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 border-start border-4 @GetCardAccentClass(item.HolidayName)">
-                        <div class="card-body">
-                            <span class="badge bg-opacity-10 text-dark mb-2 @GetBadgeClass(item.HolidayName)">
-                                @item.DayOfWeek
-                            </span>
-                            <h5 class="card-title fw-bold text-dark text-truncate mb-3">@item.HolidayName</h5>
+            <div class="row g-4">
+                @foreach (var item in holidaysList)
+                {
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 border-start border-4 @GetCardAccentClass(item.HolidayName)">
+                            <div class="card-body">
+                                <span class="badge bg-opacity-10 text-dark mb-2 @GetBadgeClass(item.HolidayName)">
+                                    @item.DayOfWeek
+                                </span>
+                                <h5 class="card-title fw-bold text-dark text-truncate mb-3">@item.HolidayName</h5>
 
-                            <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-2 mb-2">
-                                <span class="small text-muted fw-medium">Ethiopian (E.C.)</span>
-                                <span class="fw-bold text-primary">@item.EthiopianMonth @item.EthiopianDay</span>
-                            </div>
+                                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-2 mb-2">
+                                    <span class="small text-muted fw-medium">Ethiopian (E.C.)</span>
+                                    <span class="fw-bold text-primary">@item.EthiopianMonth @item.EthiopianDay</span>
+                                </div>
 
-                            <div class="d-flex justify-content-between align-items-center bg-white border border-light p-2 rounded-2">
-                                <span class="small text-muted fw-medium">Gregorian (G.C.)</span>
-                                <span class="fw-bold text-success">@item.GregorianMonth @item.GregorianDay, @item.GregorianYear</span>
+                                <div class="d-flex justify-content-between align-items-center bg-white border border-light p-2 rounded-2">
+                                    <span class="small text-muted fw-medium">Gregorian (G.C.)</span>
+                                    <span class="fw-bold text-success">@item.GregorianMonth @item.GregorianDay, @item.GregorianYear</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        </div> <!-- end print-area -->
     }
 </div>
 
@@ -75,6 +77,31 @@
     .max-width-results {
         max-width: 1200px;
         width: 100%;
+    }
+
+    @@media print {
+        /* Hide everything by default */
+        body * {
+            visibility: hidden;
+        }
+
+        /* Show only the results section */
+        .print-area, .print-area * {
+            visibility: visible;
+        }
+
+        /* Position print area to fill the page */
+        .print-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        /* Hide the download button and input form */
+        .no-print {
+            display: none !important;
+        }
     }
 </style>
 
@@ -94,16 +121,15 @@
             HolidayName = item.Item1,
             DayOfWeek = item.Item2,
             EthiopianMonth = item.Item3,
-            EthiopianDay = item.Item4,   // This is text from the library
+            EthiopianDay = item.Item4,
             GregorianMonth = item.Item5,
-            GregorianDay = item.Item6,   // This is text from the library
-            GregorianYear = item.Item7   // This is text from the library
+            GregorianDay = item.Item6,
+            GregorianYear = item.Item7
         }).ToList();
     }
 
     private string GetCardAccentClass(string name)
     {
-        // Highlight fasts vs feasts dynamically
         if (name.Contains("ጾም") || name.ToLower().Contains("fast"))
             return "border-warning bg-light";
 
@@ -129,7 +155,7 @@
         public string GregorianYear { get; set; } = string.Empty;
     }
 
-private async Task PrintPage()
+    private async Task PrintPage()
     {
         await JS.InvokeVoidAsync("printPage");
     }

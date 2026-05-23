@@ -94,6 +94,11 @@ a, .btn-link {
     inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
 }
 
+/* Hide top bar with timestamp and links */
+.top-row {
+    display: none !important;
+}
+
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }

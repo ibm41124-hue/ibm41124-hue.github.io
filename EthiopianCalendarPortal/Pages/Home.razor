@@ -9,13 +9,10 @@
     <!-- Header Section -->
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-primary">ባሕረ ሐሳብ — Bahire Hasab</h1>
-        <button class="no-print btn btn-outline-secondary btn-sm mb-2" @onclick="PrintPage">
-            🖨️ Download as PDF
-        </button>
         <p class="lead text-muted">Calculate Ethiopian Fasting Days and Liturgical Holidays using modern .NET technology</p>
     </div>
 
-    <!-- Input Form Card (hidden during print) -->
+    <!-- Input Form Card -->
     <div class="no-print card shadow-sm border-0 max-width-form mx-auto mb-5 p-4 bg-light">
         <div class="row g-3 align-items-center justify-content-center">
             <div class="col-md-7">
@@ -29,6 +26,16 @@
                 </button>
             </div>
         </div>
+
+        <!-- Download button just below Calculate -->
+        @if (holidaysList != null && holidaysList.Any())
+        {
+            <div class="d-grid mt-3">
+                <button class="btn btn-outline-secondary btn-lg" @onclick="PrintPage">
+                    🖨️ Download as PDF
+                </button>
+            </div>
+        }
     </div>
 
     <!-- Results Display -->
@@ -65,7 +72,7 @@
                     </div>
                 }
             </div>
-        </div> <!-- end print-area -->
+        </div>
     }
 </div>
 
@@ -80,17 +87,14 @@
     }
 
     @@media print {
-        /* Hide everything by default */
         body * {
             visibility: hidden;
         }
 
-        /* Show only the results section */
         .print-area, .print-area * {
             visibility: visible;
         }
 
-        /* Position print area to fill the page */
         .print-area {
             position: absolute;
             top: 0;
@@ -98,7 +102,6 @@
             width: 100%;
         }
 
-        /* Hide the download button and input form */
         .no-print {
             display: none !important;
         }

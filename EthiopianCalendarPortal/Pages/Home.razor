@@ -42,7 +42,14 @@
     @if (holidaysList != null && holidaysList.Any())
     {
         <div class="print-area">
-            <div class="mb-4 max-width-results mx-auto">
+
+            <!-- Print-only title (hidden on screen) -->
+            <div class="print-title text-center mb-4">
+                <h1 class="fw-bold">ባሕረ ሐሳብ — Bahire Hasab</h1>
+                <h2 class="fw-semibold text-muted">@inputYear E.C.</h2>
+            </div>
+
+            <div class="mb-4 max-width-results mx-auto screen-title">
                 <h2 class="h3 fw-bold text-dark m-0">Results for the Year @inputYear E.C.</h2>
             </div>
             <hr class="mb-4" />
@@ -86,7 +93,12 @@
         width: 100%;
     }
 
-   @@media print {
+    /* Hide print title on screen */
+    .print-title {
+        display: none;
+    }
+
+    @@media print {
         @@page {
             margin: 0;
         }
@@ -104,6 +116,17 @@
             top: 0;
             left: 0;
             width: 100%;
+            padding: 2rem;
+        }
+
+        /* Show print title only in PDF */
+        .print-title {
+            display: block !important;
+        }
+
+        /* Hide screen title in PDF */
+        .screen-title {
+            display: none !important;
         }
 
         .no-print {

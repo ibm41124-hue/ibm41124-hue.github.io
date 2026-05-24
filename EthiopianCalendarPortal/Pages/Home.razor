@@ -81,60 +81,131 @@
     }
 </div>
 
-<style>
-    .max-width-form {
-        max-width: 600px;
-    }
-
-    .max-width-results {
-        max-width: 1200px;
-        width: 100%;
-    }
-
-    .print-title {
-        display: none;
-    }
-
-    @@media print {
-        @@page {
-            margin: 0;
-        }
-
-        body * {
-            visibility: hidden;
-        }
-
-        .print-area, .print-area * {
-            visibility: visible;
-        }
-
-        .print-area {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 2rem;
-        }
-
-        .print-title {
-            display: block !important;
-        }
-
-        .screen-title {
-            display: none !important;
-        }
-
-        .no-print {
-            display: none !important;
-        }
-    }
-</style>
-
 @code {
     private int inputYear = 2018;
     private List<HolidayModel>? holidaysList;
 
-    // Holiday name mapping
     private static readonly Dictionary<string, string> AmharicNames = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "Tahisas",
+        { "Tahisas",                    "ታህሳስ"                  },
+        { "Tahsas",                     "ታህሳስ"                  },
+        { "Miazia",                     "ሚያዝያ"                  },
+        { "Miyazya",                    "ሚያዝያ"                  },
+        { "Adis Amet",                  "አዲስ አመት"               },
+        { "Meskel",                     "መስቀል"                   },
+        { "Tsome Nebiyat",              "ፆመ ነቢያት"               },
+        { "Lidet",                      "ልደት (ገና)"              },
+        { "Gena",                       "ልደት (ገና)"              },
+        { "Tsome Gahad",                "ፆመ ጋሃድ"                },
+        { "Timket",                     "ጥምቀት"                   },
+        { "Tsome Nenewe",               "ፆመ ነነዌ"                },
+        { "Tsome Nenewe Mefcha",        "ፆመ ነነዌ መፍቻ"           },
+        { "Tsome Hudade",               "ፆመ ሁዳዴ"                },
+        { "Debre Zeyit",                "ደብረ ዘይት"               },
+        { "Siklet",                     "ስቅለት"                   },
+        { "Fasika",                     "ፋሲካ"                    },
+        { "Rikbe Kahinat",              "ርክበ ካህናት"              },
+        { "Eriget",                     "ዕርገት"                   },
+        { "Peraklitos",                 "ጰራቅሊጦስ"               },
+        { "Tsome Hawariyat",            "ፆመ ሐዋርያት"              },
+        { "Tsome Dehinet",              "ፆመ ድህነት"               },
+        { "Tsome Hawariyat Mefcha",     "ፆመ ሐዋርያት መፍቻ"        },
+        { "Tsome Filseta Maryam",       "ፆመ ፍልሰታ ማርያም"        },
+        { "Debre Tabor",                "ደብረ ታቦር"               },
+        { "Tsome Filseta Mefcha",       "ፆመ ፍልሰታ መፍቻ"         },
+    };
+
+    private static readonly Dictionary<string, string> AmharicMonths = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Meskerem",   "መስከረም" },
+        { "Tikemt",     "ጥቅምት"  },
+        { "Hidar",      "ህዳር"   },
+        { "Tahsas",     "ታህሳስ"  },
+        { "Tahisas",    "ታህሳስ"  },
+        { "Tir",        "ጥር"    },
+        { "Yekatit",    "የካቲት"  },
+        { "Megabit",    "መጋቢት"  },
+        { "Miyazya",    "ሚያዝያ"  },
+        { "Miazia",     "ሚያዝያ"  },
+        { "Ginbot",     "ግንቦት"  },
+        { "Sene",       "ሰኔ"    },
+        { "Hamle",      "ሐምሌ"   },
+        { "Nehase",     "ነሐሴ"   },
+        { "Pagume",     "ጳጉሜ"   }
+    };
+
+    private string ToAmharic(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return name;
+        if (AmharicNames.TryGetValue(name.Trim(), out var exact)) return exact;
+        foreach (var pair in AmharicNames)
+        {
+            if (name.Trim().StartsWith(pair.Key, StringComparison.OrdinalIgnoreCase))
+                return pair.Value;
+        }
+        return name;
+    }
+
+    private string ToAmharicMonth(string month)
+    {
+        if (string.IsNullOrWhiteSpace(month)) return month;
+        if (AmharicMonths.TryGetValue(month.Trim(), out var exact)) return exact;
+        foreach (var pair in AmharicMonths)
+        {
+            if (month.Trim().StartsWith(pair.Key, StringComparison.OrdinalIgnoreCase))
+                return pair.Value;
+        }
+        return month;
+    }
+
+    private void GenerateCalendar()
+    {
+        var calculator = new BahireHasabCalculator(inputYear);
+        calculator.Verbose = 0;
+        calculator.SaveToFile = 0;
+        calculator.CalculateBahireHasab();
+
+        holidaysList = calculator.AllText.Select(item => new HolidayModel
+        {
+            HolidayName = item.Item1,
+            DayOfWeek = item.Item2,
+            EthiopianMonth = item.Item3,
+            EthiopianDay = item.Item4,
+            GregorianMonth = item.Item5,
+            GregorianDay = item.Item6,
+            GregorianYear = item.Item7
+        }).ToList();
+    }
+
+    private string GetCardAccentClass(string name)
+    {
+        if (name.Contains("ጾም") || name.Contains("ፆመ") ||
+            name.ToLower().Contains("fast") || name.ToLower().Contains("tsome"))
+            return "border-warning bg-light";
+        return "border-success bg-white";
+    }
+
+    private string GetBadgeClass(string name)
+    {
+        if (name.Contains("ጾም") || name.Contains("ፆመ") ||
+            name.ToLower().Contains("fast") || name.ToLower().Contains("tsome"))
+            return "bg-warning text-dark";
+        return "bg-success text-white";
+    }
+
+    public class HolidayModel
+    {
+        public string HolidayName { get; set; } = string.Empty;
+        public string DayOfWeek { get; set; } = string.Empty;
+        public string EthiopianMonth { get; set; } = string.Empty;
+        public string EthiopianDay { get; set; } = string.Empty;
+        public string GregorianMonth { get; set; } = string.Empty;
+        public string GregorianDay { get; set; } = string.Empty;
+        public string GregorianYear { get; set; } = string.Empty;
+    }
+
+    private async Task PrintPage()
+    {
+        await JS.InvokeVoidAsync("printPage");
+    }
+}

@@ -106,3 +106,51 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+/* Print styles */
+.print-title {
+    display: none;
+}
+
+@media print {
+    @page {
+        margin: 0;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .print-area, .print-area * {
+        visibility: visible;
+    }
+
+    .print-area {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 2rem;
+    }
+
+    .print-title {
+        display: block !important;
+    }
+
+    .screen-title {
+        display: none !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .max-width-form {
+        max-width: 600px;
+    }
+
+    .max-width-results {
+        max-width: 1200px;
+        width: 100%;
+    }
+}

@@ -1,18 +1,16 @@
 @page "/"
 @using BahireHasab.Core
-@using System.IO
+@using EthiopianCalendarPortal.Helpers
 @inject IJSRuntime JS
 
 <PageTitle>Ethiopian Calendar Portal</PageTitle>
 
 <div class="container py-5">
-    <!-- Header Section -->
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-primary">ባሕረ ሐሳብ — Bahire Hasab</h1>
         <p class="lead text-muted">Calculate Ethiopian Fasting Days and Liturgical Holidays using modern .NET technology</p>
     </div>
 
-    <!-- Input Form Card -->
     <div class="no-print card shadow-sm border-0 max-width-form mx-auto mb-5 p-4 bg-light">
         <div class="row g-3 align-items-center justify-content-center">
             <div class="col-md-7">
@@ -37,7 +35,6 @@
         }
     </div>
 
-    <!-- Results Display -->
     @if (holidaysList != null && holidaysList.Any())
     {
         <div class="print-area">
@@ -59,13 +56,15 @@
                         <div class="card h-100 shadow-sm border-0 border-start border-4 @GetCardAccentClass(item.HolidayName)">
                             <div class="card-body">
                                 <span class="badge bg-opacity-10 text-dark mb-2 @GetBadgeClass(item.HolidayName)">
-                                    @ToAmharicDay(item.DayOfWeek)
+                                    @AmharicTranslator.ToAmharicDay(item.DayOfWeek)
                                 </span>
-                                <h5 class="card-title fw-bold text-dark text-truncate mb-3">@ToAmharic(item.HolidayName)</h5>
+                                <h5 class="card-title fw-bold text-dark text-truncate mb-3">
+                                    @AmharicTranslator.ToAmharicHoliday(item.HolidayName)
+                                </h5>
 
                                 <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-2 mb-2">
                                     <span class="small text-muted fw-medium">Ethiopian (E.C.)</span>
-                                    <span class="fw-bold text-primary">@ToAmharicMonth(item.EthiopianMonth) @item.EthiopianDay</span>
+                                    <span class="fw-bold text-primary">@AmharicTranslator.ToAmharicMonth(item.EthiopianMonth) @item.EthiopianDay</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center bg-white border border-light p-2 rounded-2">
@@ -85,35 +84,52 @@
     private int inputYear = 2018;
     private List<HolidayModel>? holidaysList;
 
-    private static readonly Dictionary<string, string> AmharicDays = new(StringComparer.OrdinalIgnoreCase)
+    private void GenerateCalendar()
     {
-        { "Sunday",     "እሑድ"   },
-        { "Monday",     "ሰኞ"    },
-        { "Tuesday",    "ማክሰኞ"  },
-        { "Wednesday",  "ረቡዕ"   },
-        { "Thursday",   "ሐሙስ"   },
-        { "Friday",     "ዓርብ"   },
-        { "Saturday",   "ቅዳሜ"   },
-    };
+        var calculator = new BahireHasabCalculator(inputYear);
+        calculator.Verbose = 0;
+        calculator.SaveToFile = 0;
+        calculator.CalculateBahireHasab();
 
-    private static readonly Dictionary<string, string> AmharicNames = new(StringComparer.OrdinalIgnoreCase)
+        holidaysList = calculator.AllText.Select(item => new HolidayModel
+        {
+            HolidayName = item.Item1,
+            DayOfWeek = item.Item2,
+            EthiopianMonth = item.Item3,
+            EthiopianDay = item.Item4,
+            GregorianMonth = item.Item5,
+            GregorianDay = item.Item6,
+            GregorianYear = item.Item7
+        }).ToList();
+    }
+
+    private string GetCardAccentClass(string name)
     {
-        { "Tahisas",                "ታኅሣሥ"                      },
-        { "Tahsas",                 "ታኅሣሥ"                      },
-        { "Miazia",                 "ሚያዝያ"                      },
-        { "Miyazya",                "ሚያዝያ"                      },
-        { "Adis Amet",              "አዲስ አመት"                   },
-        { "Meskel",                 "መስቀል"                       },
-        { "Tsome Nebiyat",          "ጾመ ነቢያት (የገና ጾም)"         },
-        { "Lidet",                  "ልደተ ክርስቶስ /የገና በዐል"       },
-        { "Gena",                   "ልደተ ክርስቶስ /የገና በዐል"       },
-        { "Tsome Gahad",            "ጾመ ጋድ(ገሃድ)"               },
-        { "Timket",                 "ጥምቀት"                       },
-        { "Tsome Nenewe",           "ጾመ ሰብአ ነነዌ"               },
-        { "Tsome Nenewe Mefcha",    "ፆመ ነነዌ መፍቻ"               },
-        { "Tsome Hudade",           "ዐቢይ ጾም (ጾመ ሁዳዴ)"         },
-        { "Debre Zeyit",            "ደብረ ዘይት"                   },
-        { "Siklet",                 "ስቅለት"                       },
-        { "Fasika",                 "ትንሣኤ"                       },
-        { "Rikbe Kahinat",          "ርክበ ካህናት"                  },
-        { "Eriget",                 "ዕርገት"
+        if (name.ToLower().Contains("tsome") || name.ToLower().Contains("fast"))
+            return "border-warning bg-light";
+        return "border-success bg-white";
+    }
+
+    private string GetBadgeClass(string name)
+    {
+        if (name.ToLower().Contains("tsome") || name.ToLower().Contains("fast"))
+            return "bg-warning text-dark";
+        return "bg-success text-white";
+    }
+
+    public class HolidayModel
+    {
+        public string HolidayName { get; set; } = string.Empty;
+        public string DayOfWeek { get; set; } = string.Empty;
+        public string EthiopianMonth { get; set; } = string.Empty;
+        public string EthiopianDay { get; set; } = string.Empty;
+        public string GregorianMonth { get; set; } = string.Empty;
+        public string GregorianDay { get; set; } = string.Empty;
+        public string GregorianYear { get; set; } = string.Empty;
+    }
+
+    private async Task PrintPage()
+    {
+        await JS.InvokeVoidAsync("printPage");
+    }
+}

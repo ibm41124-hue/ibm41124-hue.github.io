@@ -7,7 +7,7 @@ public static class AmharicTranslator
         { "Sunday",     "እሑድ"  },
         { "Monday",     "ሰኞ"   },
         { "Tuesday",    "ማክሰኞ" },
-        { "Wednesday",  "ረቡዕ"  },
+        { "Wednsday",  "ረቡዕ"  },
         { "Thursday",   "ሐሙስ"  },
         { "Friday",     "ዓርብ"  },
         { "Saturday",   "ቅዳሜ"  },

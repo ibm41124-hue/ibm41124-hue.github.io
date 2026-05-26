@@ -1,0 +1,54 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">EthiopianCalendarPortal</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        @* <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div> *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="ethiopian-calendar">
+                <!-- Cross-browser inline SVG Ethiopian Flag -->
+                <svg class="me-2 text-start" width="20" height="14" viewBox="0 0 3 2" aria-hidden="true" style="border-radius: 2px;">
+                    <rect width="3" height="2" fill="#009639" />
+                    <rect y="0.666" width="3" height="0.666" fill="#FEDD00" />
+                    <rect y="1.333" width="3" height="0.666" fill="#EF3340" />
+                    <circle cx="1.5" cy="1" r="0.4" fill="#0033A0" />
+                    <polygon points="1.5,0.7 1.54,0.85 1.68,0.85 1.57,0.94 1.61,1.09 1.5,1 1.39,1.09 1.43,0.94 1.32,0.85 1.46,0.85" fill="#FEDD00" />
+                </svg>
+                Ethiopian Calendar
+            </NavLink>
+        </div>
+
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

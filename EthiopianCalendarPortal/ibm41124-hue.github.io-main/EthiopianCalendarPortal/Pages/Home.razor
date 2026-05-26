@@ -1,0 +1,186 @@
+@page "/"
+@using BahireHasab.Core
+@using EthiopianCalendarPortal.Helpers
+@inject IJSRuntime JS
+
+<PageTitle>Ethiopian Calendar Portal</PageTitle>
+
+<style>
+    .day-badge {
+        display: inline-block;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        padding: 0.5rem 0.85rem;
+        border-radius: 999px;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.12);
+        min-width: 110px;
+        text-align: center;
+    }
+
+    .holiday-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        line-height: 1.3;
+    }
+
+    .holiday-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .holiday-card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.15s ease-in-out;
+    }
+
+    .print-area {
+        color: #111;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">ባሕረ ሐሳብ — Bahire Hasab</h1>
+        <p class="lead text-muted">Calculate Ethiopian Fasting Days and Liturgical Holidays using modern .NET technology</p>
+    </div>
+
+    <div class="no-print card shadow-sm border-0 max-width-form mx-auto mb-5 p-4 bg-light">
+        <div class="row g-3 align-items-center justify-content-center">
+            <div class="col-md-7">
+                <label for="yearInput" class="form-label fw-semibold text-secondary">Enter Ethiopian Year (E.C.)</label>
+                <input type="number" id="yearInput" class="form-control form-control-lg border-2"
+                       @bind="inputYear" placeholder="e.g., 2016" min="1" max="9999" />
+            </div>
+            <div class="col-md-5 d-grid align-self-end">
+                <button class="btn btn-primary btn-lg shadow-sm" @onclick="GenerateCalendar">
+                    <i class="bi bi-calendar-check-fill me-2"></i> Calculate Calendar
+                </button>
+            </div>
+        </div>
+
+        @if (holidaysList != null && holidaysList.Any())
+        {
+            <div class="d-grid mt-3">
+                <button class="btn btn-outline-secondary btn-lg" @onclick="PrintPage">
+                    🖨️ Download as PDF
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (holidaysList != null && holidaysList.Any())
+    {
+        <div class="print-area">
+
+            <div class="print-title text-center mb-4">
+                <h1 class="fw-bold">ባሕረ ሐሳብ — Bahire Hasab</h1>
+                <h2 class="fw-semibold text-muted">@inputYear E.C.</h2>
+            </div>
+
+            <div class="mb-4 max-width-results mx-auto screen-title">
+                <h2 class="h3 fw-bold text-dark m-0">Results for the Year @inputYear E.C.</h2>
+            </div>
+            <hr class="mb-4" />
+
+            <div class="row g-4">
+                @foreach (var item in holidaysList)
+                {
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 border-start border-4 holiday-card @GetCardAccentClass(item.HolidayName)">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <span class="badge day-badge @GetDayBadgeClass(item.DayOfWeek)">
+                                        @AmharicTranslator.ToAmharicDay(item.DayOfWeek)
+                                    </span>
+                                </div>
+
+                                <h5 class="card-title holiday-title text-dark mb-3">
+                                    @AmharicTranslator.ToAmharicHoliday(item.HolidayName)
+                                </h5>
+
+                                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-2 mb-2">
+                                    <span class="small text-muted fw-medium">Ethiopian (E.C.)</span>
+                                    <span class="fw-bold text-primary">@AmharicTranslator.ToAmharicMonth(item.EthiopianMonth) @item.EthiopianDay</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center bg-white border border-light p-2 rounded-2">
+                                    <span class="small text-muted fw-medium">Gregorian (G.C.)</span>
+                                    <span class="fw-bold text-success">@item.GregorianMonth @item.GregorianDay, @item.GregorianYear</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private int inputYear = 2018;
+    private List<HolidayModel>? holidaysList;
+
+    private void GenerateCalendar()
+    {
+        var calculator = new BahireHasabCalculator(inputYear);
+        calculator.Verbose = 0;
+        calculator.SaveToFile = 0;
+        calculator.CalculateBahireHasab();
+
+        holidaysList = calculator.AllText.Select(item => new HolidayModel
+        {
+            HolidayName = item.Item1,
+            DayOfWeek = item.Item2,
+            EthiopianMonth = item.Item3,
+            EthiopianDay = item.Item4,
+            GregorianMonth = item.Item5,
+            GregorianDay = item.Item6,
+            GregorianYear = item.Item7
+        }).ToList();
+    }
+
+    private string GetCardAccentClass(string name)
+    {
+        if (name.ToLower().Contains("tsome") || name.ToLower().Contains("fast"))
+            return "border-warning bg-light";
+        return "border-success bg-white";
+    }
+
+    private string GetDayBadgeClass(string dayName)
+    {
+        var lower = dayName.ToLower();
+
+        if (lower.Contains("sun") || lower.Contains("sunday"))
+            return "bg-primary text-white";
+        if (lower.Contains("mon") || lower.Contains("monday"))
+            return "bg-success text-white";
+        if (lower.Contains("tue") || lower.Contains("tuesday"))
+            return "bg-info text-dark";
+        if (lower.Contains("wed") || lower.Contains("wednesday"))
+            return "bg-warning text-dark";
+        if (lower.Contains("thu") || lower.Contains("thursday"))
+            return "bg-danger text-white";
+        if (lower.Contains("fri") || lower.Contains("friday"))
+            return "bg-dark text-white";
+        if (lower.Contains("sat") || lower.Contains("saturday"))
+            return "bg-secondary text-white";
+
+        return "bg-secondary text-white";
+    }
+
+    public class HolidayModel
+    {
+        public string HolidayName { get; set; } = string.Empty;
+        public string DayOfWeek { get; set; } = string.Empty;
+        public string EthiopianMonth { get; set; } = string.Empty;
+        public string EthiopianDay { get; set; } = string.Empty;
+        public string GregorianMonth { get; set; } = string.Empty;
+        public string GregorianDay { get; set; } = string.Empty;
+        public string GregorianYear { get; set; } = string.Empty;
+    }
+
+    private async Task PrintPage()
+    {
+        await JS.InvokeVoidAsync("printPage");
+    }
+}

@@ -1,5 +1,6 @@
 @page "/ethiopian-calendar"
 @using EthiopianCalendarPortal.Pages
+@using System.Linq
 
 <style>
     .ec-root, .ec-root * {
@@ -169,13 +170,13 @@
     .ec-cell:hover { background: #FAFAF5; }
     .ec-cell.empty { background: #F9F7F3; }
     .ec-cell.sunday .ec-eth { color: #B03030; }
-    .ec-cell.is-annual  { background: var(--ec-gold-light); }
+    .ec-cell.is-annual { background: var(--ec-gold-light); }
     .ec-cell.is-movable { background: var(--ec-red-light); }
     .ec-cell.is-monthly { background: var(--ec-blue-light); }
     .ec-eth { font-size: 1.1rem; font-weight: bold; color: var(--ec-dark); line-height: 1; }
     .ec-greg { font-size: 0.58rem; color: #AAA; margin-top: 3px; font-family: sans-serif; white-space: nowrap; }
     .ec-feast-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-    .ec-feast-dot.annual  { background: var(--ec-gold); }
+    .ec-feast-dot.annual { background: var(--ec-gold); }
     .ec-feast-dot.movable { background: var(--ec-red); }
     .ec-feast-dot.monthly { background: var(--ec-blue); }
     .ec-side { display: flex; flex-direction: column; gap: 1rem; }
@@ -185,21 +186,20 @@
     .ec-feast-item { display: flex; align-items: baseline; gap: 8px; padding: 0.5rem 0.9rem; border-bottom: 1px solid #F3F0EA; font-size: 0.78rem; color: #333; line-height: 1.4; font-family: sans-serif; }
     .ec-feast-item:last-child { border-bottom: none; }
     .ec-feast-item .fdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-    .ec-feast-item .fdot.annual  { background: var(--ec-gold); }
+    .ec-feast-item .fdot.annual { background: var(--ec-gold); }
     .ec-feast-item .fdot.movable { background: var(--ec-red); }
     .ec-feast-item .fdot.monthly { background: var(--ec-blue); }
     .ec-feast-item strong { color: #111; font-family: sans-serif; }
     .ec-no-feasts { padding: 0.9rem 1rem; font-size: 0.78rem; color: #AAA; text-align: center; font-family: sans-serif; }
     .ec-glossary { border: 1px solid var(--ec-border); border-radius: 10px; overflow: hidden; }
     .ec-gloss-head { padding: 0.6rem 1rem; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.04em; font-family: sans-serif; display: flex; align-items: center; gap: 6px; }
-    .ec-gloss-head.annual  { background: #FDF3DC; color: #7A5800; border-bottom: 1px solid #EDD990; }
+    .ec-gloss-head.annual { background: #FDF3DC; color: #7A5800; border-bottom: 1px solid #EDD990; }
     .ec-gloss-head.movable { background: var(--ec-red-light); color: #6A1414; border-bottom: 1px solid #F0B8B8; }
     .ec-gloss-head.monthly { background: var(--ec-blue-light); color: #1E3A8A; border-bottom: 1px solid #C0D8F8; }
     .ec-empty-state { padding: 3rem; text-align: center; color: #AAA; font-size: 1rem; font-family: sans-serif; }
 </style>
 
 <div class="ec-root">
-
     <div class="ec-topbar">
         <div class="ec-topbar-title">&#127466;&#127481; Ethiopian Calendar &amp; EOTC Feast Guide</div>
         <div class="ec-year-form">
@@ -227,21 +227,20 @@
                 var idx = i;
                 var isPagume = (i == 12);
                 var isActive = (idx == currentMonthIndex);
-                <button class="ec-dot-btn @(isPagume ? "pagume" : "") @(isActive ? "active" : "")"
-                        title="@monthsData[i].AmharicName (@monthsData[i].EnglishName)"
-                        @onclick="() => CurrentMonthIndex = idx"></button>
+                <button class="ec-dot-btn @(isPagume ? "pagume" : "") @(isActive ? "active" : "")" 
+                        title="@monthsData[i].AmharicName (@monthsData[i].EnglishName)" 
+                        @onclick="() => { currentMonthIndex = idx; }"></button>
             }
         </div>
 
         <div class="ec-legend">
             <span>Feast key:</span>
-            <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-gold);"></span>Annual holiday</span>
+            <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-gold);"></span>Holiday</span>
             <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-red);"></span>Movable feast</span>
-            <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-blue);"></span>Monthly saint day</span>
+            <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-blue);"></span>Monthly saint</span>
         </div>
 
         <div class="ec-layout">
-
             <div class="ec-cal-card">
                 <div class="ec-weekday-row">
                     @for (int w = 0; w < weekdayHeaders.Length; w++)
@@ -257,13 +256,12 @@
                     }
                     @foreach (var d in currentMonth.Days)
                     {
-                        var typeClass  = GetTypeClass(d.BgClass);
-                        var colIndex   = (currentMonth.StartWeekday + d.EthiopianDay - 1) % 7;
-                        var isSunday   = (colIndex == 6);
-                        var dotClass   = GetDotClass(d.BgClass);
+                        var typeClass = GetTypeClass(d.BgClass);
+                        var colIndex = (currentMonth.StartWeekday + d.EthiopianDay - 1) % 7;
+                        var isSunday = (colIndex == 6);
+                        var dotClass = GetDotClass(d.BgClass);
                         var hasHoliday = !string.IsNullOrEmpty(d.HolidayName);
-                        <div class="ec-cell @typeClass @(isSunday ? "sunday" : "")"
-                             title="@(hasHoliday ? d.HolidayName : "")">
+                        <div class="ec-cell @typeClass @(isSunday ? "sunday" : "")" title="@(hasHoliday ? d.HolidayName : "")">
                             <span class="ec-eth">@d.EthiopianDay</span>
                             <span class="ec-greg">@d.GregorianDateText</span>
                             @if (hasHoliday)
@@ -276,13 +274,10 @@
             </div>
 
             <div class="ec-side">
-
                 <div class="ec-this-month">
                     <div class="ec-this-month-head">Feasts in @currentMonth.AmharicName</div>
                     @{
-                        var feasts = currentMonth.Days
-                            .Where(d => !string.IsNullOrEmpty(d.HolidayName))
-                            .ToList();
+                        var feasts = currentMonth.Days.Where(d => !string.IsNullOrEmpty(d.HolidayName)).ToList();
                     }
                     @if (!feasts.Any())
                     {
@@ -304,7 +299,44 @@
                 </div>
 
                 <div class="ec-glossary">
-                    <div class="ec-gloss-head annual">&#x1F7E1; Major Annual Holidays (በዓላት)</div>
+                    <div class="ec-gloss-head annual">&#x1F7E1; Major Annual Holidays</div>
                     <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>እንቁጣጣሽ / ቅዱስ ዮሐንስ (Meskerem 1):</strong> Ethiopian New Year, end of rainy season.</span></li>
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>መስቀል (Meskerem 17):</strong> Finding of the True Cross; Demera 
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Meskerem 1:</strong> New Year (Enkutatash)</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Meskerem 17:</strong> Meskel (True Cross)</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Tahsas 29:</strong> Christmas (Genna)</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Ter 11:</strong> Timkat (Epiphany)</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Ter 12:</strong> Cana ZeGelila</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Nehase 13:</strong> Buhe (Transfiguration)</span></li>
+                    </ul>
+                </div>
+
+                <div class="ec-glossary">
+                    <div class="ec-gloss-head movable">&#x1F534; Movable Feasts</div>
+                    <ul class="ec-feast-list">
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Nineveh Fast:</strong> Before Lent</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Great Lent:</strong> 55 days</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Easter (Tr'nsae):</strong> Resurrection</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Ascension:</strong> 40 days after Easter</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Pentecost:</strong> 50 days after Easter</span></li>
+                    </ul>
+                </div>
+
+                <div class="ec-glossary">
+                    <div class="ec-gloss-head monthly">&#x1F535; Monthly Saints</div>
+                    <ul class="ec-feast-list">
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 5:</strong> Abune Gebre Menfas Qiddus</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 7:</strong> Holy Trinity</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 12:</strong> St. Michael</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 19:</strong> St. Gabriel</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 21:</strong> St. Mary</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 23:</strong> St. George</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="ec-empty-state">Enter an Ethiopian year above and press Go to generate the calendar.</div>
+    }
+</div>

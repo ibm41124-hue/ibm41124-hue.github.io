@@ -94,17 +94,22 @@ a, .btn-link {
     inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
 }
 
+    .loading-progress-text:after {
+        content: var(--blazor-load-percentage-text, "Loading");
+    }
+
 /* Hide top bar with timestamp and links */
 .top-row {
     display: none !important;
 }
 
-    .loading-progress-text:after {
-        content: var(--blazor-load-percentage-text, "Loading");
-    }
-
 code {
     color: #c02d76;
+}
+
+/* Allow the Ethiopian Calendar page to override the global font */
+.ec-root, .ec-root * {
+    font-family: inherit;
 }
 
 /* Print styles */

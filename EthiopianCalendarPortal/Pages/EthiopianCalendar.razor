@@ -3,6 +3,10 @@
 @using EthiopianCalendarPortal.Pages
 
 <style>
+    .ec-root, .ec-root * {
+        box-sizing: border-box;
+        font-family: 'Georgia', 'Times New Roman', serif;
+    }
     .ec-root {
         --ec-gold: #B8860B;
         --ec-gold-light: #FDF6E3;
@@ -13,12 +17,9 @@
         --ec-surface: #F7F5F0;
         --ec-border: rgba(0,0,0,0.09);
         --ec-dark: #181612;
-        font-family: 'Georgia', 'Times New Roman', serif;
         background: var(--ec-surface);
         min-height: 100vh;
     }
-
-    /* TOP BAR */
     .ec-topbar {
         background: var(--ec-dark);
         display: flex;
@@ -39,12 +40,12 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-family: sans-serif;
     }
     .ec-year-form label {
         font-size: 0.78rem;
         color: #888;
         white-space: nowrap;
-        font-family: sans-serif;
     }
     .ec-year-form input[type=number] {
         width: 88px;
@@ -69,8 +70,6 @@
         letter-spacing: 0.03em;
     }
     .ec-year-form button:hover { background: #9A6F00; }
-
-    /* MONTH NAV STRIP */
     .ec-nav-strip {
         background: #fff;
         border-bottom: 1px solid var(--ec-border);
@@ -94,39 +93,14 @@
         justify-content: center;
         transition: border-color 0.15s, color 0.15s;
         flex-shrink: 0;
+        font-family: sans-serif;
     }
     .ec-nav-btn:hover:not(:disabled) { border-color: var(--ec-gold); color: var(--ec-gold); }
     .ec-nav-btn:disabled { opacity: 0.28; cursor: default; }
-
-    .ec-month-title {
-        text-align: center;
-        flex: 1;
-        line-height: 1.2;
-    }
-    .ec-month-amharic {
-        font-size: 1.55rem;
-        font-weight: bold;
-        color: var(--ec-dark);
-        display: block;
-    }
-    .ec-month-english {
-        font-size: 0.72rem;
-        color: #999;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        display: block;
-        font-family: sans-serif;
-        margin-top: 1px;
-    }
-    .ec-month-gyear {
-        font-size: 0.75rem;
-        color: #B89A50;
-        display: block;
-        font-family: sans-serif;
-        margin-top: 2px;
-    }
-
-    /* MONTH DOT STRIP */
+    .ec-month-title { text-align: center; flex: 1; line-height: 1.2; }
+    .ec-month-amharic { font-size: 1.55rem; font-weight: bold; color: var(--ec-dark); display: block; }
+    .ec-month-english { font-size: 0.72rem; color: #999; letter-spacing: 0.1em; text-transform: uppercase; display: block; font-family: sans-serif; margin-top: 1px; }
+    .ec-month-gyear { font-size: 0.75rem; color: #B89A50; display: block; font-family: sans-serif; margin-top: 2px; }
     .ec-dots {
         display: flex;
         justify-content: center;
@@ -146,14 +120,25 @@
         cursor: pointer;
         padding: 0;
         transition: background 0.15s, transform 0.1s;
-        position: relative;
     }
     .ec-dot-btn:hover { background: #B8A870; }
     .ec-dot-btn.active { background: var(--ec-gold); transform: scale(1.4); }
     .ec-dot-btn.pagume { width: 7px; height: 7px; background: #CCC8C0; }
     .ec-dot-btn.pagume.active { background: var(--ec-gold); }
-
-    /* BODY LAYOUT */
+    .ec-legend {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        padding: 0.5rem 1.75rem;
+        background: #fff;
+        border-bottom: 1px solid var(--ec-border);
+        font-family: sans-serif;
+        font-size: 0.72rem;
+        color: #666;
+        align-items: center;
+    }
+    .ec-legend-item { display: flex; align-items: center; gap: 5px; }
+    .ec-legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .ec-layout {
         display: grid;
         grid-template-columns: 1fr 330px;
@@ -163,11 +148,9 @@
         padding: 1.75rem;
         align-items: start;
     }
-    @media (max-width: 860px) {
+    @@media (max-width: 860px) {
         .ec-layout { grid-template-columns: 1fr; padding: 1rem; }
     }
-
-    /* CALENDAR CARD */
     .ec-cal-card {
         background: #fff;
         border: 1px solid var(--ec-border);
@@ -175,173 +158,51 @@
         overflow: hidden;
         box-shadow: 0 2px 14px rgba(0,0,0,0.06);
     }
-
     .ec-weekday-row {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         background: var(--ec-dark);
     }
-    .ec-wday {
-        text-align: center;
-        padding: 0.55rem 0;
-        font-size: 0.68rem;
-        font-weight: bold;
-        letter-spacing: 0.07em;
-        font-family: sans-serif;
-        color: #9A9080;
-    }
+    .ec-wday { text-align: center; padding: 0.55rem 0; font-size: 0.68rem; font-weight: bold; letter-spacing: 0.07em; font-family: sans-serif; color: #9A9080; }
     .ec-wday.sunday { color: #D07070; }
-
-    .ec-days-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 1px;
-        background: #EEEAE2;
-    }
-    .ec-cell {
-        background: #fff;
-        min-height: 62px;
-        padding: 6px 5px 5px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: default;
-        position: relative;
-        transition: background 0.1s;
-    }
+    .ec-days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #EEEAE2; }
+    .ec-cell { background: #fff; min-height: 64px; padding: 6px 5px 5px; display: flex; flex-direction: column; align-items: center; cursor: default; transition: background 0.1s; }
     .ec-cell:hover { background: #FAFAF5; }
     .ec-cell.empty { background: #F9F7F3; }
-
     .ec-cell.sunday .ec-eth { color: #B03030; }
-
-    /* Holiday backgrounds from BgClass keywords */
-    .ec-cell.is-annual   { background: var(--ec-gold-light); }
-    .ec-cell.is-movable  { background: var(--ec-red-light); }
-    .ec-cell.is-monthly  { background: var(--ec-blue-light); }
-
-    .ec-eth {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: var(--ec-dark);
-        line-height: 1;
-    }
-    .ec-greg {
-        font-size: 0.58rem;
-        color: #AAA;
-        margin-top: 3px;
-        font-family: sans-serif;
-        white-space: nowrap;
-    }
-    .ec-feast-dot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        margin-top: 5px;
-        flex-shrink: 0;
-    }
+    .ec-cell.is-annual  { background: var(--ec-gold-light); }
+    .ec-cell.is-movable { background: var(--ec-red-light); }
+    .ec-cell.is-monthly { background: var(--ec-blue-light); }
+    .ec-eth { font-size: 1.1rem; font-weight: bold; color: var(--ec-dark); line-height: 1; }
+    .ec-greg { font-size: 0.58rem; color: #AAA; margin-top: 3px; font-family: sans-serif; white-space: nowrap; }
+    .ec-feast-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
     .ec-feast-dot.annual  { background: var(--ec-gold); }
     .ec-feast-dot.movable { background: var(--ec-red); }
     .ec-feast-dot.monthly { background: var(--ec-blue); }
-
-    /* SIDE PANEL */
     .ec-side { display: flex; flex-direction: column; gap: 1rem; }
-
-    .ec-this-month {
-        background: #fff;
-        border: 1px solid var(--ec-border);
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .ec-this-month-head {
-        background: var(--ec-dark);
-        color: #D4AA50;
-        padding: 0.55rem 1rem;
-        font-size: 0.72rem;
-        font-weight: bold;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        font-family: sans-serif;
-    }
+    .ec-this-month { background: #fff; border: 1px solid var(--ec-border); border-radius: 10px; overflow: hidden; }
+    .ec-this-month-head { background: var(--ec-dark); color: #D4AA50; padding: 0.55rem 1rem; font-size: 0.72rem; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; font-family: sans-serif; }
     .ec-feast-list { list-style: none; margin: 0; padding: 0; background: #fff; }
-    .ec-feast-item {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        padding: 0.5rem 0.9rem;
-        border-bottom: 1px solid #F3F0EA;
-        font-size: 0.78rem;
-        color: #333;
-        line-height: 1.4;
-        font-family: sans-serif;
-    }
+    .ec-feast-item { display: flex; align-items: baseline; gap: 8px; padding: 0.5rem 0.9rem; border-bottom: 1px solid #F3F0EA; font-size: 0.78rem; color: #333; line-height: 1.4; font-family: sans-serif; }
     .ec-feast-item:last-child { border-bottom: none; }
-    .ec-feast-item .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        margin-top: 4px;
-    }
-    .ec-feast-item .dot.annual  { background: var(--ec-gold); }
-    .ec-feast-item .dot.movable { background: var(--ec-red); }
-    .ec-feast-item .dot.monthly { background: var(--ec-blue); }
-    .ec-feast-item strong { color: #111; }
-
+    .ec-feast-item .fdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .ec-feast-item .fdot.annual  { background: var(--ec-gold); }
+    .ec-feast-item .fdot.movable { background: var(--ec-red); }
+    .ec-feast-item .fdot.monthly { background: var(--ec-blue); }
+    .ec-feast-item strong { color: #111; font-family: sans-serif; }
     .ec-no-feasts { padding: 0.9rem 1rem; font-size: 0.78rem; color: #AAA; text-align: center; font-family: sans-serif; }
-
-    .ec-glossary {
-        border: 1px solid var(--ec-border);
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .ec-gloss-head {
-        padding: 0.6rem 1rem;
-        font-size: 0.75rem;
-        font-weight: bold;
-        letter-spacing: 0.04em;
-        font-family: sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
+    .ec-glossary { border: 1px solid var(--ec-border); border-radius: 10px; overflow: hidden; }
+    .ec-gloss-head { padding: 0.6rem 1rem; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.04em; font-family: sans-serif; display: flex; align-items: center; gap: 6px; }
     .ec-gloss-head.annual  { background: #FDF3DC; color: #7A5800; border-bottom: 1px solid #EDD990; }
     .ec-gloss-head.movable { background: var(--ec-red-light); color: #6A1414; border-bottom: 1px solid #F0B8B8; }
     .ec-gloss-head.monthly { background: var(--ec-blue-light); color: #1E3A8A; border-bottom: 1px solid #C0D8F8; }
-
-    .ec-empty-state {
-        padding: 3rem;
-        text-align: center;
-        color: #AAA;
-        font-size: 1rem;
-        font-family: sans-serif;
-    }
-
-    /* Legend */
-    .ec-legend {
-        display: flex;
-        gap: 1.2rem;
-        flex-wrap: wrap;
-        padding: 0.6rem 1.75rem;
-        background: #fff;
-        border-bottom: 1px solid var(--ec-border);
-        font-family: sans-serif;
-        font-size: 0.72rem;
-        color: #666;
-        align-items: center;
-    }
-    .ec-legend-item { display: flex; align-items: center; gap: 5px; }
-    .ec-legend-swatch {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-    }
+    .ec-empty-state { padding: 3rem; text-align: center; color: #AAA; font-size: 1rem; font-family: sans-serif; }
 </style>
 
 <div class="ec-root">
 
-    <!-- TOP BAR -->
     <div class="ec-topbar">
-        <div class="ec-topbar-title">🇪🇹 Ethiopian Calendar &amp; EOTC Feast Guide</div>
+        <div class="ec-topbar-title">&#127466;&#127481; Ethiopian Calendar &amp; EOTC Feast Guide</div>
         <div class="ec-year-form">
             <label>Ethiopian Year (E.C.):</label>
             <input type="number" @bind="inputYear" min="1" max="9999" />
@@ -351,69 +212,63 @@
 
     @if (monthsData != null && currentMonth != null)
     {
-        <!-- MONTH NAV STRIP -->
         <div class="ec-nav-strip">
             <button class="ec-nav-btn" @onclick="PrevMonth" disabled="@(currentMonthIndex == 0)">&#8592;</button>
             <div class="ec-month-title">
                 <span class="ec-month-amharic">@currentMonth.AmharicName</span>
-                <span class="ec-month-english">@currentMonth.EnglishName &nbsp;·&nbsp; @displayedYear E.C.</span>
+                <span class="ec-month-english">@currentMonth.EnglishName &nbsp;&middot;&nbsp; @displayedYear E.C.</span>
                 <span class="ec-month-gyear">G.C. @currentMonth.GregorianYearText</span>
             </div>
             <button class="ec-nav-btn" @onclick="NextMonth" disabled="@(currentMonthIndex == monthsData.Count - 1)">&#8594;</button>
         </div>
 
-        <!-- DOT STRIP -->
         <div class="ec-dots">
             @for (int i = 0; i < monthsData.Count; i++)
             {
                 var idx = i;
-                var isPagume = i == 12;
-                var isActive = idx == currentMonthIndex;
+                var isPagume = (i == 12);
+                var isActive = (idx == currentMonthIndex);
                 <button class="ec-dot-btn @(isPagume ? "pagume" : "") @(isActive ? "active" : "")"
                         title="@monthsData[i].AmharicName (@monthsData[i].EnglishName)"
                         @onclick="() => currentMonthIndex = idx"></button>
             }
         </div>
 
-        <!-- LEGEND -->
         <div class="ec-legend">
-            <span style="color:#888;">Feast key:</span>
+            <span>Feast key:</span>
             <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-gold);"></span>Annual holiday</span>
             <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-red);"></span>Movable feast</span>
             <span class="ec-legend-item"><span class="ec-legend-swatch" style="background:var(--ec-blue);"></span>Monthly saint day</span>
         </div>
 
-        <!-- MAIN LAYOUT -->
         <div class="ec-layout">
 
-            <!-- CALENDAR GRID -->
             <div class="ec-cal-card">
                 <div class="ec-weekday-row">
                     @for (int w = 0; w < weekdayHeaders.Length; w++)
                     {
-                        <!-- The weekday headers array starts at Monday (index 0) = col 0,
-                             but Sunday is the 7th header. Mark col 6 as sunday. -->
-                        <div class="ec-wday @(w == 6 ? "sunday" : "")">@weekdayHeaders[w]</div>
+                        var wIdx = w;
+                        <div class="ec-wday @(wIdx == 6 ? "sunday" : "")">@weekdayHeaders[wIdx]</div>
                     }
                 </div>
                 <div class="ec-days-grid">
-                    @* Empty cells before first day *@
                     @for (int e = 0; e < currentMonth.StartWeekday; e++)
                     {
                         <div class="ec-cell empty"></div>
                     }
                     @foreach (var d in currentMonth.Days)
                     {
-                        var typeClass = GetTypeClass(d.BgClass);
-                        var colIndex  = (currentMonth.StartWeekday + d.EthiopianDay - 1) % 7;
-                        var isSunday  = colIndex == 6;
+                        var typeClass  = GetTypeClass(d.BgClass);
+                        var colIndex   = (currentMonth.StartWeekday + d.EthiopianDay - 1) % 7;
+                        var isSunday   = (colIndex == 6);
+                        var dotClass   = GetDotClass(d.BgClass);
+                        var hasHoliday = !string.IsNullOrEmpty(d.HolidayName);
                         <div class="ec-cell @typeClass @(isSunday ? "sunday" : "")"
-                             title="@(string.IsNullOrEmpty(d.HolidayName) ? "" : d.HolidayName)">
+                             title="@(hasHoliday ? d.HolidayName : "")">
                             <span class="ec-eth">@d.EthiopianDay</span>
                             <span class="ec-greg">@d.GregorianDateText</span>
-                            @if (!string.IsNullOrEmpty(d.HolidayName))
+                            @if (hasHoliday)
                             {
-                                var dotClass = GetDotClass(d.BgClass);
                                 <div class="ec-feast-dot @dotClass"></div>
                             }
                         </div>
@@ -421,14 +276,14 @@
                 </div>
             </div>
 
-            <!-- SIDE PANEL -->
             <div class="ec-side">
 
-                <!-- Feasts this month (dynamic) -->
                 <div class="ec-this-month">
                     <div class="ec-this-month-head">Feasts in @currentMonth.AmharicName</div>
                     @{
-                        var feasts = currentMonth.Days.Where(d => !string.IsNullOrEmpty(d.HolidayName)).ToList();
+                        var feasts = currentMonth.Days
+                            .Where(d => !string.IsNullOrEmpty(d.HolidayName))
+                            .ToList();
                     }
                     @if (!feasts.Any())
                     {
@@ -439,63 +294,61 @@
                         <ul class="ec-feast-list">
                             @foreach (var f in feasts)
                             {
+                                var fc = GetDotClass(f.BgClass);
                                 <li class="ec-feast-item">
-                                    <span class="dot @GetDotClass(f.BgClass)"></span>
-                                    <span>Day <strong>@f.EthiopianDay</strong> — @f.HolidayName</span>
+                                    <span class="fdot @fc"></span>
+                                    <span>Day <strong>@f.EthiopianDay</strong> &mdash; @f.HolidayName</span>
                                 </li>
                             }
                         </ul>
                     }
                 </div>
 
-                <!-- Annual holidays glossary -->
                 <div class="ec-glossary">
-                    <div class="ec-gloss-head annual">🟡 Major Annual Holidays (በዓላት)</div>
+                    <div class="ec-gloss-head annual">&#x1F7E1; Major Annual Holidays (በዓላት)</div>
                     <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="dot annual"></span><span><strong>እንቁጣጣሽ (Meskerem 1):</strong> Ethiopian New Year, end of rainy season.</span></li>
-                        <li class="ec-feast-item"><span class="dot annual"></span><span><strong>መስቀል (Meskerem 17):</strong> Finding of the True Cross; Demera bonfire.</span></li>
-                        <li class="ec-feast-item"><span class="dot annual"></span><span><strong>ልደት / Genna (Tahsas 29):</strong> Christmas, Christ's Nativity.</span></li>
-                        <li class="ec-feast-item"><span class="dot annual"></span><span><strong>ጥምቀት (Ter 11):</strong> Epiphany, Christ's Baptism in the Jordan.</span></li>
-                        <li class="ec-feast-item"><span class="dot annual"></span><span><strong>ቃና ዘገሊላ (Ter 12):</strong> Christ's first miracle at Cana.</span></li>
-                        <li class="ec-feast-item"><span class="dot annual"></span><span><strong>ደብረ ታቦር (Nehase 13):</strong> Transfiguration of Jesus (Buhe).</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>እንቁጣጣሽ / ቅዱስ ዮሐንስ (Meskerem 1):</strong> Ethiopian New Year, end of rainy season.</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>መስቀል (Meskerem 17):</strong> Finding of the True Cross; Demera bonfire.</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>ልደት / Genna (Tahsas 29):</strong> Christmas, Christ's Nativity.</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>ጥምቀት (Ter 11):</strong> Epiphany, Christ's Baptism in the Jordan.</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>ቃና ዘገሊላ (Ter 12):</strong> Christ's first miracle at Cana.</span></li>
+                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>ደብረ ታቦር (Nehase 13):</strong> Transfiguration of Jesus (Buhe).</span></li>
                     </ul>
                 </div>
 
-                <!-- Movable feasts glossary -->
                 <div class="ec-glossary">
-                    <div class="ec-gloss-head movable">🔴 Movable Bahire Hasab Feasts</div>
+                    <div class="ec-gloss-head movable">&#x1F534; Movable Bahire Hasab Feasts</div>
                     <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ጾመ ነነዌ:</strong> Three-day Nineveh Fast before Great Lent.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ዐቢይ ጾም:</strong> Great Lent — 55-day holy fast.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ደብረ ዘይት:</strong> Mid-Lent Sunday, Mount of Olives.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ሆሣዕና:</strong> Palm Sunday, Christ's entry into Jerusalem.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ስቅለት:</strong> Good Friday, Christ's crucifixion.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ትንሣኤ:</strong> Easter, Christ's resurrection.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ርክበ ካህናት:</strong> Assembly of Priests, midway Easter–Pentecost.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ዕርገት:</strong> Ascension of Jesus into heaven.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ጰራቅሊጦስ:</strong> Pentecost, descent of the Holy Spirit.</span></li>
-                        <li class="ec-feast-item"><span class="dot movable"></span><span><strong>ጾመ ሐዋርያት:</strong> Apostles' Fast after Pentecost.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ጾመ ነነዌ (Nineveh Fast):</strong> Three-day fast before Great Lent.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ዐቢይ ጾም (Great Lent):</strong> 55-day holy fast.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ደብረ ዘይት (Mount of Olives):</strong> Mid-Lent Sunday.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ሆሣዕና (Palm Sunday):</strong> Christ's entry into Jerusalem.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ስቅለት (Good Friday):</strong> Christ's crucifixion.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ትንሣኤ (Easter):</strong> Christ's resurrection.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ርክበ ካህናት (Assembly of Priests):</strong> Midway Easter to Pentecost.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ዕርገት (Ascension):</strong> Jesus ascends into heaven.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ጰራቅሊጦስ (Pentecost):</strong> Descent of the Holy Spirit.</span></li>
+                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>ጾመ ሐዋርያት (Apostles Fast):</strong> Fast after Pentecost.</span></li>
                     </ul>
                 </div>
 
-                <!-- Monthly saints glossary -->
                 <div class="ec-glossary">
-                    <div class="ec-gloss-head monthly">🔵 Monthly Commemorated Days</div>
+                    <div class="ec-gloss-head monthly">&#x1F535; Monthly Commemorated Days</div>
                     <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 5 – አቡነ ገብረ መንፈስ ቅዱስ:</strong> Desert hermit saint.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 7 – ሥላሴ:</strong> Monthly honor of the Holy Trinity.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 12 – ቅዱስ ሚካኤል:</strong> Chief protector archangel.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 16 – ኪዳነ ምሕረት:</strong> Covenant of Mercy, St. Mary.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 19 – ቅዱስ ገብርኤል:</strong> Archangel Gabriel, messenger of tidings.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 21 – ቅድስት ማርያም:</strong> Monthly covenant of the Virgin Mary.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 23 – ቅዱስ ጊዮርጊስ:</strong> St. George, Great Martyr.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 27 – መድኃኔዓለም:</strong> Christ, Savior of the World.</span></li>
-                        <li class="ec-feast-item"><span class="dot monthly"></span><span><strong>Day 29 – በዓለ ወልድ:</strong> Feast of God the Son.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 5 &mdash; አቡነ ገብረ መንፈስ ቅዱስ:</strong> Desert hermit saint.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 7 &mdash; ሥላሴ (Holy Trinity):</strong> Monthly honor of the Triune Godhead.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 12 &mdash; ቅዱስ ሚካኤል (St. Michael):</strong> Chief protector archangel.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 16 &mdash; ቅድስት ኪዳነ ምሕረት (Kidane Mihret):</strong> Covenant of Mercy, St. Mary.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 19 &mdash; ቅዱስ ገብርኤል (St. Gabriel):</strong> Archangel, messenger of tidings.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 21 &mdash; ቅድስት ማርያም (St. Mary):</strong> Monthly Marian covenant.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 23 &mdash; ቅዱስ ጊዮርጊስ (St. George):</strong> Great Martyr, Star of the East.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 27 &mdash; መድኃኔዓለም (Savior of the World):</strong> Christ, Redeemer of all.</span></li>
+                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 29 &mdash; በዓለ ወልድ (Feast of the Son):</strong> Celebration of God the Son.</span></li>
                     </ul>
                 </div>
 
-            </div> <!-- ec-side -->
-        </div> <!-- ec-layout -->
+            </div>
+        </div>
     }
     else
     {
@@ -523,10 +376,10 @@
             currentMonthIndex++;
     }
 
-    // Maps the BgClass strings your C# code produces to CSS type classes
-    // Annual:  "bg-warning ..."
-    // Movable: "bg-danger ..."
-    // Monthly: "bg-info ..."
+    // BgClass from C# partial:
+    //   "bg-warning ..." -> annual
+    //   "bg-danger ..."  -> movable
+    //   "bg-info ..."    -> monthly
     private string GetTypeClass(string? bgClass)
     {
         if (string.IsNullOrEmpty(bgClass)) return "";

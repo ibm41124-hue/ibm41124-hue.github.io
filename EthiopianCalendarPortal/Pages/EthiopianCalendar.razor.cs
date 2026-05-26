@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Components;
 
 namespace EthiopianCalendarPortal.Pages
 {
     public partial class EthiopianCalendar : ComponentBase
     {
+        protected int currentMonthIndex = 0;
         protected int inputYear = 2018;
         protected int displayedYear;
         protected List<MonthModel>? monthsData;
@@ -20,27 +22,23 @@ namespace EthiopianCalendarPortal.Pages
             ("ጳጉሜ", "Pagume")
         };
 
-        protected override void OnInitialized()
-        {
-            GenerateCalendar();
-        }
+        private MonthModel? currentMonth => (monthsData != null && currentMonthIndex >= 0 && currentMonthIndex < monthsData.Count) ? monthsData[currentMonthIndex] : null;
+
+        protected override void OnInitialized() => GenerateCalendar();
 
         protected void GenerateCalendar()
         {
             displayedYear = inputYear;
             monthsData = new List<MonthModel>();
 
-            // FIXED: Ethiopian leap year occurs when year % 4 == 3
+            // FIXED: Ethiopian leap year = displayedYear % 4 == 3
             bool isLeapYear = displayedYear % 4 == 3;
-            
-            // FIXED: Ethiopian New Year is always September 11 (or 12 in leap year before Gregorian leap)
             int targetGregorianYear = displayedYear + 7;
             DateTime newYearDate = new DateTime(targetGregorianYear, 9, 11);
             int currentWeekdayOffset = (int)newYearDate.DayOfWeek;
+            DateTime runningGregorianDate = newYearDate;
 
             var movableHolidays = CalculateBahireHasabMovableFeasts(displayedYear);
-
-            DateTime runningGregorianDate = newYearDate;
 
             for (int i = 0; i < 13; i++)
             {
@@ -57,16 +55,19 @@ namespace EthiopianCalendarPortal.Pages
 
                 for (int day = 1; day <= totalDaysInMonth; day++)
                 {
-                    string dateText = runningGregorianDate.ToString("MMM d");
-                    var dayModel = new DayModel { EthiopianDay = day, GregorianDateText = dateText };
+                    var dayModel = new DayModel 
+                    { 
+                        EthiopianDay = day, 
+                        GregorianDateText = runningGregorianDate.ToString("MMM d, yyyy") 
+                    };
 
-                    AssignFixedFeasts(i + 1, day, dayModel, isLeapYear);
+                    AssignFixedFeasts(i + 1, day, dayModel);
 
                     int absoluteDayOfYear = (i * 30) + day;
                     if (movableHolidays.TryGetValue(absoluteDayOfYear, out string? movableName))
                     {
                         dayModel.HolidayName = movableName;
-                        dayModel.BgClass = (movableName.Contains("ትንሣኤ") || movableName.Contains("ልደት"))
+                        dayModel.BgClass = movableName.Contains("ትንሣኤ") || movableName.Contains("ልደት")
                             ? "bg-warning fw-bold text-dark"
                             : "bg-danger text-white fw-bold";
                     }
@@ -80,7 +81,16 @@ namespace EthiopianCalendarPortal.Pages
             }
         }
 
-        // REMOVED: GetFirstDayOfMäskärämWeekday - no longer needed, using correct New Year date directly
+        protected void PrevMonth()
+        {
+            if (currentMonthIndex > 0) currentMonthIndex--;
+        }
+
+        protected void NextMonth()
+        {
+            if (monthsData != null && currentMonthIndex < monthsData.Count - 1)
+                currentMonthIndex++;
+        }
 
         private Dictionary<int, string> CalculateBahireHasabMovableFeasts(int ethiopianYear)
         {
@@ -94,13 +104,8 @@ namespace EthiopianCalendarPortal.Pages
             int metqiMonth = (abekte <= 14) ? 1 : 2;
             int metqiDay = metqi;
 
+            int startingWeekday = (int)new DateTime(ethiopianYear + 7, 9, 11).DayOfWeek;
             int metqiAbsoluteDays = ((metqiMonth - 1) * 30) + metqiDay;
-            
-            // FIXED: Use the correct starting weekday from New Year date
-            int targetGregorianYear = ethiopianYear + 7;
-            DateTime newYearDate = new DateTime(targetGregorianYear, 9, 11);
-            int startingWeekday = (int)newYearDate.DayOfWeek;
-            
             int metqiWeekday = (startingWeekday + metqiAbsoluteDays - 1) % 7;
 
             int[] weekdayTewsak = { 7, 6, 5, 4, 3, 2, 8 };
@@ -127,13 +132,13 @@ namespace EthiopianCalendarPortal.Pages
 
             int ninivehAbsolute = ((ninivehMonth - 1) * 30) + ninivehDay;
 
-            holidays[ninivehAbsolute]       = "ጾመ ነነዌ (Nineveh Fast)";
-            holidays[ninivehAbsolute + 14]  = "ዐቢይ ጾም (Great Lent)";
-            holidays[ninivehAbsolute + 41]  = "ደብረ ዘይት (Mount of Olives)";
-            holidays[ninivehAbsolute + 62]  = "ሆሣዕና (Palm Sunday)";
-            holidays[ninivehAbsolute + 67]  = "ስቅለት (Good Friday)";
-            holidays[ninivehAbsolute + 69]  = "ትንሣኤ (Easter)";
-            holidays[ninivehAbsolute + 93]  = "ርክበ ካህናት (Assembly of Priests)";
+            holidays[ninivehAbsolute] = "ጾመ ነነዌ (Nineveh Fast)";
+            holidays[ninivehAbsolute + 14] = "ዐቢይ ጾም (Great Lent)";
+            holidays[ninivehAbsolute + 41] = "ደብረ ዘይት (Mount of Olives)";
+            holidays[ninivehAbsolute + 62] = "ሆሣዕና (Palm Sunday)";
+            holidays[ninivehAbsolute + 67] = "ስቅለት (Good Friday)";
+            holidays[ninivehAbsolute + 69] = "ትንሣኤ (Easter)";
+            holidays[ninivehAbsolute + 93] = "ርክበ ካህናት (Assembly of Priests)";
             holidays[ninivehAbsolute + 109] = "ዕርገት (Ascension)";
             holidays[ninivehAbsolute + 119] = "ጰራቅሊጦስ (Pentecost)";
             holidays[ninivehAbsolute + 121] = "ጾመ ሐዋርያት (Apostles Fast)";
@@ -141,26 +146,46 @@ namespace EthiopianCalendarPortal.Pages
             return holidays;
         }
 
-        private void AssignFixedFeasts(int month, int day, DayModel model, bool isLeapYear)
+        private void AssignFixedFeasts(int month, int day, DayModel model)
         {
-            // Monthly recurring saint days (set first; annual feasts below will override where needed)
-            if      (day == 5)  { model.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ";                          model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 7)  { model.HolidayName = "ሥላሴ (Holy Trinity)";                          model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 12) { model.HolidayName = "ቅዱስ ሚካኤል (St. Michael)";                     model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 16) { model.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)";             model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 19) { model.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)";                   model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 21) { model.HolidayName = "ቅድስት ማርያም (St. Mary)";                      model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 23) { model.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)";                   model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 27) { model.HolidayName = "መድኃኔዓለም (Savior of the World)";             model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 29) { model.HolidayName = "በዓለ ወልድ (Feast of the Son)";                model.BgClass = "bg-info text-dark opacity-75"; }
+            // Monthly saints (set first)
+            if (day == 5) { model.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 7) { model.HolidayName = "ሥላሴ (Holy Trinity)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 12) { model.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 16) { model.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 19) { model.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 21) { model.HolidayName = "ቅድስት ማርያም (St. Mary)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 23) { model.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 27) { model.HolidayName = "መድኃኔዓለም (Savior of the World)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 29) { model.HolidayName = "በዓለ ወልድ (Feast of the Son)"; model.BgClass = "bg-info text-dark opacity-75"; }
 
-            // Annual fixed feasts (override monthly saint days on these specific dates)
-            if      (month == 1  && day == 1)  { model.HolidayName = "እንቁጣጣሽ / ቅዱስ ዮሐንስ (New Year)";              model.BgClass = "bg-warning text-dark fw-bold"; }
-            else if (month == 1  && day == 17) { model.HolidayName = "መስቀል (Feast of the True Cross)";               model.BgClass = "bg-warning text-dark fw-bold"; }
-            else if (month == 4  && day == 29) { model.HolidayName = "ልደት (Christmas)";                              model.BgClass = "bg-warning text-dark fw-bold"; }
-            else if (month == 5  && day == 11) { model.HolidayName = "ጥምቀት (Epiphany)";                              model.BgClass = "bg-warning text-dark fw-bold"; }
-            else if (month == 5  && day == 12) { model.HolidayName = "ቃና ዘገሊላ (Kana ZeGelila)";                     model.BgClass = "bg-warning text-dark fw-bold"; }
-            else if (month == 12 && day == 13) { model.HolidayName = "ደብረ ታቦር (Debre Tabor / Buhe)";               model.BgClass = "bg-warning text-dark fw-bold"; }
+            // Annual feasts (override monthly where they overlap)
+            if (month == 1 && day == 1) { model.HolidayName = "እንቁጣጣሽ / New Year"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 1 && day == 17) { model.HolidayName = "መስቀል / Meskel"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 4 && day == 29) { model.HolidayName = "ልደት / Christmas (Genna)"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 5 && day == 11) { model.HolidayName = "ጥምቀት / Timkat (Epiphany)"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 5 && day == 12) { model.HolidayName = "ቃና ዘገሊላ / Kana ZeGelila"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 12 && day == 13) { model.HolidayName = "ደብረ ታቦር / Buhe"; model.BgClass = "bg-warning fw-bold text-dark"; }
+        }
+
+        protected string GetTypeClass(string? bgClass)
+        {
+            if (string.IsNullOrEmpty(bgClass)) return "";
+            if (bgClass.Contains("warning")) return "is-annual";
+            if (bgClass.Contains("danger")) return "is-movable";
+            if (bgClass.Contains("info")) return "is-monthly";
+            return "";
+        }
+
+        protected string GetDotClass(string? bgClass)
+        {
+            if (string.IsNullOrEmpty(bgClass)) return "";
+            if (bgClass.Contains("warning")) return "annual";
+            if (bgClass.Contains("danger")) return "movable";
+            if (bgClass.Contains("info")) return "monthly";
+            return "";
         }
     }
+
+
 }

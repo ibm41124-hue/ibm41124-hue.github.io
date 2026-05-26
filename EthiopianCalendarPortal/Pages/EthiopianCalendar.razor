@@ -359,11 +359,27 @@
 
 @code {
     private int currentMonthIndex = 0;
+    private int inputYear = 2018;
+    private int displayedYear = 2018;
+    private List<MonthModel>? monthsData;
+    private readonly string[] weekdayHeaders = { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" };
 
     private MonthModel? currentMonth =>
         (monthsData != null && currentMonthIndex >= 0 && currentMonthIndex < monthsData.Count)
             ? monthsData[currentMonthIndex]
             : null;
+
+    protected override void OnInitialized()
+    {
+        GenerateCalendar();
+    }
+
+    private void GenerateCalendar()
+    {
+        displayedYear = inputYear;
+        monthsData = BuildMonths(displayedYear);
+        currentMonthIndex = 0;
+    }
 
     private void PrevMonth()
     {
@@ -376,16 +392,92 @@
             currentMonthIndex++;
     }
 
-    // BgClass from C# partial:
-    //   "bg-warning ..." -> annual
-    //   "bg-danger ..."  -> movable
-    //   "bg-info ..."    -> monthly
+    private List<MonthModel> BuildMonths(int ethiopianYear)
+    {
+        var months = new List<MonthModel>();
+        var monthNames = new[]
+        {
+            ("መስከረም", "Meskerem"), ("ጥቅምት", "Tikimt"), ("ኅዳር", "Hidar"),
+            ("ታኅሣሥ", "Tahsas"), ("ጥር", "Tir"), ("የካቲት", "Yekatit"),
+            ("መጋቢት", "Megabit"), ("ሚያዝያ", "Miyazya"), ("ግንቦት", "Ginbot"),
+            ("ሰኔ", "Sene"), ("ሐምሌ", "Hamle"), ("ነሐሴ", "Nehase"), ("ጳጉሜ", "Pagume")
+        };
+
+        var gYearStart = ethiopianYear + 7;
+        var newYearGregorian = EthiopianNewYearGregorianDate(ethiopianYear);
+        var isLeap = IsEthiopianLeapYear(ethiopianYear);
+        var daysInLastMonth = isLeap ? 6 : 5;
+
+        for (int i = 0; i < 13; i++)
+        {
+            int daysInMonth = i == 12 ? daysInLastMonth : 30;
+            var monthStart = newYearGregorian.AddDays(i * 30);
+            var days = new List<DayModel>();
+
+            for (int d = 1; d <= daysInMonth; d++)
+            {
+                var gDate = monthStart.AddDays(d - 1);
+                days.Add(new DayModel
+                {
+                    EthiopianDay = d,
+                    GregorianDateText = gDate.ToString("MMM d, yyyy"),
+                    HolidayName = GetHolidayName(i + 1, d),
+                    BgClass = GetBgClass(i + 1, d)
+                });
+            }
+
+            months.Add(new MonthModel
+            {
+                EthiopianMonth = i + 1,
+                EthiopianYear = ethiopianYear,
+                AmharicName = monthNames[i].Item1,
+                EnglishName = monthNames[i].Item2,
+                GregorianYearText = i == 12 && !isLeap ? $"{gYearStart}/{gYearStart + 1}" : $"{monthStart:yyyy}",
+                StartWeekday = (int)monthStart.DayOfWeek == 0 ? 6 : ((int)monthStart.DayOfWeek - 1),
+                Days = days
+            });
+        }
+
+        return months;
+    }
+
+    private DateTime EthiopianNewYearGregorianDate(int ethiopianYear)
+    {
+        var gy = ethiopianYear + 7;
+        return new DateTime(gy, 9, 11);
+    }
+
+    private bool IsEthiopianLeapYear(int ethiopianYear) => ethiopianYear % 4 == 3;
+
+    private string? GetHolidayName(int month, int day)
+    {
+        return (month, day) switch
+        {
+            (1, 1) => "Ethiopian New Year",
+            (1, 17) => "Meskel",
+            (4, 29) => "Christmas (Genna)",
+            (5, 11) => "Timkat",
+            (5, 12) => "Cana",
+            (12, 13) => "Debre Tabor",
+            _ => null
+        };
+    }
+
+    private string? GetBgClass(int month, int day)
+    {
+        return GetHolidayName(month, day) switch
+        {
+            "Ethiopian New Year" or "Meskel" or "Christmas (Genna)" or "Timkat" or "Cana" or "Debre Tabor" => "bg-warning",
+            _ => null
+        };
+    }
+
     private string GetTypeClass(string? bgClass)
     {
         if (string.IsNullOrEmpty(bgClass)) return "";
         if (bgClass.Contains("warning")) return "is-annual";
-        if (bgClass.Contains("danger"))  return "is-movable";
-        if (bgClass.Contains("info"))    return "is-monthly";
+        if (bgClass.Contains("danger")) return "is-movable";
+        if (bgClass.Contains("info")) return "is-monthly";
         return "";
     }
 
@@ -393,8 +485,8 @@
     {
         if (string.IsNullOrEmpty(bgClass)) return "";
         if (bgClass.Contains("warning")) return "annual";
-        if (bgClass.Contains("danger"))  return "movable";
-        if (bgClass.Contains("info"))    return "monthly";
+        if (bgClass.Contains("danger")) return "movable";
+        if (bgClass.Contains("info")) return "monthly";
         return "";
     }
 }

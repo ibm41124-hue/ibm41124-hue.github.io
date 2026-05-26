@@ -1,0 +1,133 @@
+﻿@page "/ethiopian-calendar"
+@using System
+@using EthiopianCalendarPortal.Pages
+
+<div class="container-fluid mt-4">
+    <!-- Main Dashboard Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap border-bottom pb-3">
+        <h2>🇪🇹 Ethiopian Calendar & EOTC Feast Description Guide</h2>
+        
+        <!-- Year Input Form -->
+        <div class="d-flex align-items-center">
+            <label for="yearInput" class="form-label font-weight-bold me-2 mb-0" style="white-space: nowrap;">Ethiopian Year:</label>
+            <div class="input-group" style="width: 200px;">
+                <input type="number" id="yearInput" class="form-control" @bind="inputYear" min="1" max="9999" />
+                <button class="btn btn-primary" @onclick="GenerateCalendar">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsive Two-Column System Layout -->
+    <div class="row">
+        <!-- LEFT COLUMN: 13-Month Calendar Grid View -->
+        <div class="col-lg-8 col-md-12">
+            @if (monthsData != null)
+            {
+                <h4 class="mb-4 text-secondary font-weight-bold">Calendar View for Year: @displayedYear E.C.</h4>
+                <div class="row">
+                    @foreach (var month in monthsData)
+                    {
+                        <div class="col-xl-6 col-md-12 mb-4">
+                            <div class="card shadow-sm border-0">
+                                <!-- UPDATED HEADER: Flex container maps Gregorian year to the right corner -->
+                                <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between">
+                                    <h5 class="mb-0">@month.AmharicName (@month.EnglishName)</h5>
+                                    <small class="text-white-50 font-weight-bold">G.C. @month.GregorianYearText</small>
+                                </div>
+                                <div class="card-body p-2 bg-white">
+                                    <!-- Weekdays Label Header -->
+                                    <div class="d-flex text-center font-weight-bold border-bottom pb-1 mb-2 bg-light text-muted" style="font-size: 0.85rem;">
+                                        @foreach (var dayName in weekdayHeaders)
+                                        {
+                                            <div style="width: 14.28%;">@dayName</div>
+                                        }
+                                    </div>
+
+                                    <!-- Days Rendering Block Grid Matrix -->
+                                    <div class="d-flex flex-wrap text-center">
+                                        @for (int i = 0; i < month.StartWeekday; i++)
+                                        {
+                                            <div style="width: 14.28%; height: 48px;"></div>
+                                        }
+
+                                        @foreach (var dayInfo in month.Days)
+                                        {
+                                            <div class="d-flex flex-column align-items-center justify-content-center border @dayInfo.BgClass" 
+                                                 title="@dayInfo.HolidayName"
+                                                 style="width: 14.28%; height: 48px; border-color: #f3f3f3 !important; cursor: pointer;">
+                                                
+                                                <!-- Top Value: Large Ethiopian Day Integer -->
+                                                <span style="font-size: 1rem; font-weight: bold; line-height: 1.1;">@dayInfo.EthiopianDay</span>
+                                                
+                                                <!-- Bottom Value: Small Gregorian Month Day Output Only -->
+                                                <span class="@(string.IsNullOrEmpty(dayInfo.BgClass) ? "text-muted" : "text-dark")" style="font-size: 0.65rem; line-height: 1; white-space: nowrap;">
+                                                    @dayInfo.GregorianDateText
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div> <!-- Closes col-lg-8 -->
+        <!-- RIGHT COLUMN: Side Notes Feast Description Explainer Panels -->
+        <div class="col-lg-4 col-md-12">
+            <div class="position-sticky" style="top: 20px;">
+                <h4 class="mb-4 text-secondary font-weight-bold">EOTC Feast Glossary Side Notes</h4>
+
+                <!-- MAJOR ANNUAL HOLIDAYS SECTION -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-warning text-dark font-weight-bold">
+                        🟡 Major Annual Holidays (በዓላት)
+                    </div>
+                    <ul class="list-group list-group-flush" style="font-size: 0.85rem;">
+                        <li class="list-group-item"><strong>Enkutatash (Meskerem 1):</strong> Ethiopian New Year celebrating the end of the winter rain.</li>
+                        <li class="list-group-item"><strong>Meskel (Meskerem 17):</strong> Finding of the True Cross by St. Helena, marked by Demera.</li>
+                        <li class="list-group-item"><strong>Genna / Lidet (Tahsas 29):</strong> Celebration of Christ's Nativity/Christmas.</li>
+                        <li class="list-group-item"><strong>Timkat (Ter 11):</strong> Epiphany, celebrating Christ's Baptism in Jordan.</li>
+                        <li class="list-group-item"><strong>Kana ZeGelila (Ter 12):</strong> Commemoration of Christ's first miracle at Cana.</li>
+                        <li class="list-group-item"><strong>Debre Tabor (Nehase 13):</strong> Feast of the Transfiguration of Jesus Christ (Buhe).</li>
+                    </ul>
+                </div> <!-- Closes Major Annual Holidays card -->
+                <!-- MOVABLE LUNAR FEASTS SECTION -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-danger text-white font-weight-bold">
+                        🔴 Movable Bahire Hasab Feasts
+                    </div>
+                    <ul class="list-group list-group-flush" style="font-size: 0.85rem;">
+                        <li class="list-group-item"><strong>Nineveh Fast (ጾመ ነነዌ):</strong> A three-day fast preceding Great Lent cycle.</li>
+                        <li class="list-group-item"><strong>Abiy Tsome (ዐቢይ ጾም):</strong> Great Lent, a major 55-day holy fast.</li>
+                        <li class="list-group-item"><strong>Debre Zeyit (ደብረ ዘይት):</strong> Mid-Lent Sunday tracking Christ's Mount of Olives discourse.</li>
+                        <li class="list-group-item"><strong>Hosanna (ሆሣዕና):</strong> Palm Sunday commemorating Christ's entry into Jerusalem.</li>
+                        <li class="list-group-item"><strong>Siklet (ስቅለት):</strong> Good Friday tracking Jesus' crucifixion and Passion history.</li>
+                        <li class="list-group-item"><strong>Tinsaye (ትንሣኤ):</strong> Easter commemorating Christ's victory over death.</li>
+                        <li class="list-group-item"><strong>Rikbe Kahnat (ርክበ ካህናት):</strong> Meeting of Priests midway between Easter and Pentecost.</li>
+                        <li class="list-group-item"><strong>Erget (ዕርገት):</strong> Holy Ascension of Jesus Christ back into heaven.</li>
+                        <li class="list-group-item"><strong>Paracletos (ጰራቅሊጦስ):</strong> Pentecost Sunday tracking descent of Holy Spirit.</li>
+                        <li class="list-group-item"><strong>Tsome Hawaryat (ጾመ ሐዋርያት):</strong> Fast of Holy Apostles following Pentecost.</li>
+                    </ul>
+                </div> <!-- Closes Movable Feasts card -->
+                <!-- MONTHLY RECURRING SAINTS DAYS SECTION -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-info text-dark font-weight-bold">
+                        🔵 Monthly Commemorated Feast Days
+                    </div>
+                    <ul class="list-group list-group-flush" style="font-size: 0.85rem;">
+                        <li class="list-group-item"><strong>Day 5 - Abune Gebre Menfes Kidus:</strong> Prominent desert hermit saint.</li>
+                        <li class="list-group-item"><strong>Day 7 - Holy Trinity (ሥላሴ):</strong> Monthly celebration honoring Triune Godhead.</li>
+                        <li class="list-group-item"><strong>Day 12 - St. Michael (ቅዱስ ሚካኤል):</strong> Chief protector of God's people.</li>
+                        <li class="list-group-item"><strong>Day 19 - St. Gabriel (ቅዱስ ገብርኤል):</strong> Messenger of glad tidings.</li>
+                        <li class="list-group-item"><strong>Day 21 - St. Mary (ቅድስት ማርያም):</strong> Monthly covenant celebration honoring the Virgin Mary.</li>
+                        <li class="list-group-item"><strong>Day 23 - St. George (ቅዱስ ጊዮርጊስ):</strong> Great Martyr and Star of the East.</li>
+                        <li class="list-group-item"><strong>Day 27 - Medhane Alem (መድኃኔዓለም):</strong> Jesus Christ, Savior of the World.</li>
+                        <li class="list-group-item"><strong>Day 29 - Ba'ale Wold (በዓለ ወልድ):</strong> Celebration of God the Son.</li>
+                    </ul>
+                </div> <!-- Closes Monthly Feast card -->
+
+            </div> <!-- Closes position-sticky div -->
+        </div> <!-- Closes col-lg-4 -->
+    </div> <!-- Closes row div -->
+</div> <!-- Closes container-fluid main wrapper container -->

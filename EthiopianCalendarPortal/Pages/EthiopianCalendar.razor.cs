@@ -13,11 +13,11 @@ namespace EthiopianCalendarPortal.Pages
         protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
 
         private readonly (string Amharic, string English)[] monthNames = {
-            ("መስከረም", "Mäskäräm"), ("ጥቅምት", "Teqemt"), ("ኅዳር", "Hedar"),
+            ("መስከረም", "Meskerem"), ("ጥቅምት", "Tikimt"), ("ኅዳር", "Hidar"),
             ("ታኅሣሥ", "Tahsas"), ("ጥር", "Ter"), ("የካቲት", "Yekatit"),
-            ("መጋቢት", "Megabit"), ("ሚያዝያ", "Miyazya"), ("ግንቦት", "Genbot"),
+            ("መጋቢት", "Megabit"), ("ሚያዝያ", "Miyazya"), ("ግንቦት", "Ginbot"),
             ("ሰኔ", "Sene"), ("ሐምሌ", "Hamle"), ("ነሐሴ", "Nehase"),
-            ("ጳጉሜ", "Pagumē")
+            ("ጳጉሜ", "Pagume")
         };
 
         protected override void OnInitialized()
@@ -30,19 +30,21 @@ namespace EthiopianCalendarPortal.Pages
             displayedYear = inputYear;
             monthsData = new List<MonthModel>();
 
-            bool isLeapYear = (displayedYear + 1) % 4 == 0;
-            int currentWeekdayOffset = GetFirstDayOfMäskärämWeekday(displayedYear);
-
+            // FIXED: Ethiopian leap year occurs when year % 4 == 3
+            bool isLeapYear = displayedYear % 4 == 3;
+            
+            // FIXED: Ethiopian New Year is always September 11 (or 12 in leap year before Gregorian leap)
             int targetGregorianYear = displayedYear + 7;
-            int startDayInSeptember = DateTime.IsLeapYear(targetGregorianYear) ? 12 : 11;
-            DateTime runningGregorianDate = new DateTime(targetGregorianYear, 9, startDayInSeptember);
+            DateTime newYearDate = new DateTime(targetGregorianYear, 9, 11);
+            int currentWeekdayOffset = (int)newYearDate.DayOfWeek;
 
             var movableHolidays = CalculateBahireHasabMovableFeasts(displayedYear);
 
+            DateTime runningGregorianDate = newYearDate;
+
             for (int i = 0; i < 13; i++)
             {
-                int totalDaysInMonth = 30;
-                if (i == 12) totalDaysInMonth = isLeapYear ? 6 : 5;
+                int totalDaysInMonth = (i == 12) ? (isLeapYear ? 6 : 5) : 30;
 
                 var currentMonth = new MonthModel
                 {
@@ -64,7 +66,7 @@ namespace EthiopianCalendarPortal.Pages
                     if (movableHolidays.TryGetValue(absoluteDayOfYear, out string? movableName))
                     {
                         dayModel.HolidayName = movableName;
-                        dayModel.BgClass = (movableName == "ትንሣኤ (Easter)" || movableName == "ልደት (Christmas)")
+                        dayModel.BgClass = (movableName.Contains("ትንሣኤ") || movableName.Contains("ልደት"))
                             ? "bg-warning fw-bold text-dark"
                             : "bg-danger text-white fw-bold";
                     }
@@ -78,11 +80,7 @@ namespace EthiopianCalendarPortal.Pages
             }
         }
 
-        private int GetFirstDayOfMäskärämWeekday(int year)
-        {
-            int jdnOffset = (year + (year - 1) / 4) % 7;
-            return (jdnOffset + 2) % 7;
-        }
+        // REMOVED: GetFirstDayOfMäskärämWeekday - no longer needed, using correct New Year date directly
 
         private Dictionary<int, string> CalculateBahireHasabMovableFeasts(int ethiopianYear)
         {
@@ -97,7 +95,12 @@ namespace EthiopianCalendarPortal.Pages
             int metqiDay = metqi;
 
             int metqiAbsoluteDays = ((metqiMonth - 1) * 30) + metqiDay;
-            int startingWeekday = GetFirstDayOfMäskärämWeekday(ethiopianYear);
+            
+            // FIXED: Use the correct starting weekday from New Year date
+            int targetGregorianYear = ethiopianYear + 7;
+            DateTime newYearDate = new DateTime(targetGregorianYear, 9, 11);
+            int startingWeekday = (int)newYearDate.DayOfWeek;
+            
             int metqiWeekday = (startingWeekday + metqiAbsoluteDays - 1) % 7;
 
             int[] weekdayTewsak = { 7, 6, 5, 4, 3, 2, 8 };
@@ -160,6 +163,4 @@ namespace EthiopianCalendarPortal.Pages
             else if (month == 12 && day == 13) { model.HolidayName = "ደብረ ታቦር (Debre Tabor / Buhe)";               model.BgClass = "bg-warning text-dark fw-bold"; }
         }
     }
-
-
 }

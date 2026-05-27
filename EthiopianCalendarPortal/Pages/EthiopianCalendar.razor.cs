@@ -47,92 +47,58 @@ namespace EthiopianCalendarPortal.Pages
 
         private int ConvertGregorianToEthiopianMonth(DateTime gregorianDate)
         {
-            // Ethiopian month start dates in Gregorian calendar (non-leap year)
-            // Month 0: Meskerem = Sept 11
-            // Month 1: Tikimt = Oct 11
-            // Month 2: Hidar = Nov 11
-            // Month 3: Tahsas = Dec 11
-            // Month 4: Ter = Jan 11
-            // Month 5: Yekatit = Feb 11
-            // Month 6: Megabit = Mar 11
-            // Month 7: Miyazya = Apr 11
-            // Month 8: Ginbot = May 11
-            // Month 9: Sene = Jun 11
-            // Month 10: Hamle = Jul 11
-            // Month 11: Nehase = Aug 11
-            // Month 12: Pagume = Sept 10 (5-6 days)
-            
             int gcMonth = gregorianDate.Month;
             int gcDay = gregorianDate.Day;
-            int ecYear = ConvertGregorianToEthiopianYear(gregorianDate);
-            bool isLeapYear = ecYear % 4 == 0;
             
-            // Simplified mapping based on Gregorian month
-            int[] monthStartDays = { 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10 };
-            int[] mappedMonths = { 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            
-            // Find which Ethiopian month this Gregorian date falls into
-            for (int ecMonth = 0; ecMonth < 13; ecMonth++)
-            {
-                int ecMonthGcMonth = mappedMonths[ecMonth];
-                int ecMonthGcDay = monthStartDays[ecMonth];
-                
-                // Adjust for leap year (Pagume shifts by 1 day in leap years)
-                if (isLeapYear && ecMonth == 12)
-                {
-                    ecMonthGcDay = 11;
-                }
-                
-                DateTime ethMonthStart;
-                try
-                {
-                    ethMonthStart = new DateTime(gregorianDate.Year, ecMonthGcMonth, ecMonthGcDay);
-                }
-                catch
-                {
-                    continue;
-                }
-                
-                DateTime nextMonthStart;
-                int nextEcMonth = (ecMonth + 1) % 13;
-                int nextEcMonthGcMonth = mappedMonths[nextEcMonth];
-                int nextEcMonthGcDay = monthStartDays[nextEcMonth];
-                
-                if (isLeapYear && nextEcMonth == 12)
-                {
-                    nextEcMonthGcDay = 11;
-                }
-                
-                // Handle year crossover
-                if (nextEcMonthGcMonth < ecMonthGcMonth)
-                {
-                    nextMonthStart = new DateTime(gregorianDate.Year + 1, nextEcMonthGcMonth, nextEcMonthGcDay);
-                }
-                else
-                {
-                    try
-                    {
-                        nextMonthStart = new DateTime(gregorianDate.Year, nextEcMonthGcMonth, nextEcMonthGcDay);
-                    }
-                    catch
-                    {
-                        nextMonthStart = new DateTime(gregorianDate.Year + 1, nextEcMonthGcMonth, nextEcMonthGcDay);
-                    }
-                }
-                
-                DateTime today = gregorianDate;
-                
-                if (today >= ethMonthStart && today < nextMonthStart)
-                {
-                    return ecMonth;
-                }
-            }
-            
-            // Fallback: For May 11 - June 10, return Ginbot (8)
+            // Direct mapping: May 11 - June 10 = Ginbot (index 8)
             if (gcMonth == 5 && gcDay >= 11) return 8;
             if (gcMonth == 6 && gcDay < 11) return 8;
             
-            // Default fallback to Meskerem
+            // September 11 - October 10 = Meskerem (index 0)
+            if (gcMonth == 9 && gcDay >= 11) return 0;
+            if (gcMonth == 10 && gcDay < 11) return 0;
+            
+            // October 11 - November 10 = Tikimt (index 1)
+            if (gcMonth == 10 && gcDay >= 11) return 1;
+            if (gcMonth == 11 && gcDay < 11) return 1;
+            
+            // November 11 - December 10 = Hidar (index 2)
+            if (gcMonth == 11 && gcDay >= 11) return 2;
+            if (gcMonth == 12 && gcDay < 11) return 2;
+            
+            // December 11 - January 10 = Tahsas (index 3)
+            if (gcMonth == 12 && gcDay >= 11) return 3;
+            if (gcMonth == 1 && gcDay < 11) return 3;
+            
+            // January 11 - February 10 = Ter (index 4)
+            if (gcMonth == 1 && gcDay >= 11) return 4;
+            if (gcMonth == 2 && gcDay < 11) return 4;
+            
+            // February 11 - March 10 = Yekatit (index 5)
+            if (gcMonth == 2 && gcDay >= 11) return 5;
+            if (gcMonth == 3 && gcDay < 11) return 5;
+            
+            // March 11 - April 10 = Megabit (index 6)
+            if (gcMonth == 3 && gcDay >= 11) return 6;
+            if (gcMonth == 4 && gcDay < 11) return 6;
+            
+            // April 11 - May 10 = Miyazya (index 7)
+            if (gcMonth == 4 && gcDay >= 11) return 7;
+            if (gcMonth == 5 && gcDay < 11) return 7;
+            
+            // June 11 - July 10 = Sene (index 9)
+            if (gcMonth == 6 && gcDay >= 11) return 9;
+            if (gcMonth == 7 && gcDay < 11) return 9;
+            
+            // July 11 - August 10 = Hamle (index 10)
+            if (gcMonth == 7 && gcDay >= 11) return 10;
+            if (gcMonth == 8 && gcDay < 11) return 10;
+            
+            // August 11 - September 10 = Nehase (index 11)
+            if (gcMonth == 8 && gcDay >= 11) return 11;
+            if (gcMonth == 9 && gcDay < 11) return 11;
+            
+            // Default fallback
             return 0;
         }
 
@@ -158,7 +124,167 @@ namespace EthiopianCalendarPortal.Pages
             {
                 int totalDaysInMonth = (i == 12) ? (isLeapYear ? 6 : 5) : 30;
 
-                var currentMonth = new MonthModel
+                var currentMonthObj = new MonthModel
                 {
                     AmharicName = monthNames[i].Amharic,
-                    EnglishName = 
+                    EnglishName = monthNames[i].English,
+                    StartWeekday = currentWeekdayOffset,
+                    GregorianYearText = runningGregorianDate.ToString("yyyy"),
+                    Days = new List<DayModel>()
+                };
+
+                for (int day = 1; day <= totalDaysInMonth; day++)
+                {
+                    var dayModel = new DayModel 
+                    { 
+                        EthiopianDay = day, 
+                        GregorianDateText = runningGregorianDate.ToString("MMM d, yyyy") 
+                    };
+
+                    AssignFixedFeasts(i + 1, day, dayModel);
+
+                    int absoluteDayOfYear = (i * 30) + day;
+                    if (movableHolidays.TryGetValue(absoluteDayOfYear, out string? movableName))
+                    {
+                        dayModel.HolidayName = movableName;
+                        dayModel.BgClass = movableName.Contains("ትንሣኤ") || movableName.Contains("ልደት")
+                            ? "bg-warning fw-bold text-dark"
+                            : "bg-danger text-white fw-bold";
+                    }
+
+                    currentMonthObj.Days.Add(dayModel);
+                    runningGregorianDate = runningGregorianDate.AddDays(1);
+                }
+
+                monthsData.Add(currentMonthObj);
+                currentWeekdayOffset = (currentWeekdayOffset + totalDaysInMonth) % 7;
+            }
+        }
+
+        protected void PrevMonth()
+        {
+            if (currentMonthIndex > 0) currentMonthIndex--;
+        }
+
+        protected void NextMonth()
+        {
+            if (monthsData != null && currentMonthIndex < monthsData.Count - 1)
+                currentMonthIndex++;
+        }
+
+        private Dictionary<int, string> CalculateBahireHasabMovableFeasts(int ethiopianYear)
+        {
+            var holidays = new Dictionary<int, string>();
+            int ameteAlem = ethiopianYear + 5500;
+
+            int medeb = ameteAlem % 19;
+            int wenber = medeb == 0 ? 18 : (medeb == 1 ? 0 : medeb - 1);
+            int abekte = (11 * wenber) % 30;
+            int metq = Math.Abs(30 - abekte);
+            int metqMonth = metq > 14 ? 1 : 2;
+            
+            int meteneRabit = ameteAlem / 4;
+            int mebacha = (int)((ameteAlem + meteneRabit) % 7);
+            
+            int tewsakDay = WeekdayN(metqMonth, metq, mebacha);
+            
+            int tewsak = tewsakDay switch
+            {
+                6 => 127,
+                0 => 126,
+                1 => 125,
+                2 => 124,
+                3 => 123,
+                4 => 122,
+                5 => 128,
+                _ => 0
+            };
+            
+            var (ninivehMonth, ninivehDay) = Monthday(metqMonth, metq, tewsak);
+            
+            holidays[((ninivehMonth - 1) * 30) + ninivehDay] = "ጾመ ነነዌ (Nineveh Fast)";
+            
+            var (lentMonth, lentDay) = Monthday(ninivehMonth, ninivehDay, 14);
+            holidays[((lentMonth - 1) * 30) + lentDay] = "ዐቢይ ጾም (Great Lent)";
+            
+            var (debreMonth, debreDay) = Monthday(lentMonth, lentDay, 27);
+            holidays[((debreMonth - 1) * 30) + debreDay] = "ደብረ ዘይት (Mount of Olives)";
+            
+            var (fridayMonth, fridayDay) = Monthday(debreMonth, debreDay, 26);
+            holidays[((fridayMonth - 1) * 30) + fridayDay] = "ስቅለት (Good Friday)";
+            
+            var (easterMonth, easterDay) = Monthday(debreMonth, debreDay, 28);
+            int easterAbs = ((easterMonth - 1) * 30) + easterDay;
+            holidays[easterAbs] = "ትንሣኤ (Easter)";
+            
+            var (rkMonth, rkDay) = Monthday(easterMonth, easterDay, 24);
+            holidays[((rkMonth - 1) * 30) + rkDay] = "ርክበ ካህናት (Assembly of Priests)";
+            
+            var (erigetMonth, erigetDay) = Monthday(easterMonth, easterDay, 39);
+            holidays[((erigetMonth - 1) * 30) + erigetDay] = "ዕርገት (Ascension)";
+            
+            var (peraklitosMonth, peraklitosDay) = Monthday(easterMonth, easterDay, 49);
+            holidays[((peraklitosMonth - 1) * 30) + peraklitosDay] = "ጰራቅሊጦስ (Pentecost/Peraklitos)";
+            
+            var (hawariyatMonth, hawariyatDay) = Monthday(easterMonth, easterDay, 50);
+            holidays[((hawariyatMonth - 1) * 30) + hawariyatDay] = "ጾመ ሐዋርያት (Apostles Fast)";
+
+            return holidays;
+        }
+
+        private int WeekdayN(int m, int dy, int mebacha)
+        {
+            return (((m - 1) * 30 + (dy - 1)) % 7 + mebacha) % 7;
+        }
+
+        private (int month, int day) Monthday(int m1, int d1, int x)
+        {
+            int d2 = (d1 + x) % 30;
+            int m2 = m1 + (d1 + x) / 30;
+            if (d2 == 0)
+            {
+                d2 = 30;
+                m2 = m2 - 1;
+            }
+            return (m2, d2);
+        }
+
+        private void AssignFixedFeasts(int month, int day, DayModel model)
+        {
+            if (day == 5) { model.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 7) { model.HolidayName = "ሥላሴ (Holy Trinity)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 12) { model.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 16) { model.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 19) { model.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 21) { model.HolidayName = "ቅድስት ማርያም (St. Mary)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 23) { model.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 27) { model.HolidayName = "መድኃኔዓለም (Savior of the World)"; model.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 29) { model.HolidayName = "በዓለ ወልድ (Feast of the Son)"; model.BgClass = "bg-info text-dark opacity-75"; }
+
+            if (month == 1 && day == 1) { model.HolidayName = "እንቁጣጣሽ / New Year"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 1 && day == 17) { model.HolidayName = "መስቀል / Meskel"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 4 && day == 29) { model.HolidayName = "ልደት / Christmas (Genna)"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 5 && day == 11) { model.HolidayName = "ጥምቀት / Timkat (Epiphany)"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 5 && day == 12) { model.HolidayName = "ቃና ዘገሊላ / Kana ZeGelila"; model.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 12 && day == 13) { model.HolidayName = "ደብረ ታቦር / Buhe"; model.BgClass = "bg-warning fw-bold text-dark"; }
+        }
+
+        protected string GetTypeClass(string? bgClass)
+        {
+            if (string.IsNullOrEmpty(bgClass)) return "";
+            if (bgClass.Contains("warning")) return "is-annual";
+            if (bgClass.Contains("danger")) return "is-movable";
+            if (bgClass.Contains("info")) return "is-monthly";
+            return "";
+        }
+
+        protected string GetDotClass(string? bgClass)
+        {
+            if (string.IsNullOrEmpty(bgClass)) return "";
+            if (bgClass.Contains("warning")) return "annual";
+            if (bgClass.Contains("danger")) return "movable";
+            if (bgClass.Contains("info")) return "monthly";
+            return "";
+        }
+    }
+}

@@ -12,7 +12,6 @@ namespace EthiopianCalendarPortal.Pages
         protected int displayedYear;
         protected List<MonthModel>? monthsData;
 
-        // Your Amharic weekday headers: Monday=0, Tuesday=1, ..., Sunday=6
         protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
 
         private readonly (string Amharic, string English)[] monthNames = {
@@ -32,16 +31,15 @@ namespace EthiopianCalendarPortal.Pages
             displayedYear = inputYear;
             monthsData = new List<MonthModel>();
 
-            // FIXED: Ethiopian leap year = displayedYear % 4 == 3
-            bool isLeapYear = displayedYear % 4 == 3;
+            bool isLeapYear = displayedYear % 4 == 0;
             int targetGregorianYear = displayedYear + 7;
-            DateTime newYearDate = new DateTime(targetGregorianYear, 9, 11);
             
-            // FIXED: Convert C# DayOfWeek (Sun=0) to our array (Mon=0, Sun=6)
-            // C#: Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6
-            // Ours: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
+            int[] add_nn = isLeapYear 
+                ? new int[] { 12, 12, 11, 11, 10, 9, 10, 9, 9, 8, 8, 7, 6 }
+                : new int[] { 11, 11, 10, 10, 9, 8, 10, 9, 9, 8, 8, 7, 6 };
+            
+            DateTime newYearDate = new DateTime(targetGregorianYear, 9, add_nn[0]);
             int currentWeekdayOffset = ((int)newYearDate.DayOfWeek + 6) % 7;
-            
             DateTime runningGregorianDate = newYearDate;
 
             var movableHolidays = CalculateBahireHasabMovableFeasts(displayedYear);
@@ -103,53 +101,76 @@ namespace EthiopianCalendarPortal.Pages
             var holidays = new Dictionary<int, string>();
             int ameteAlem = ethiopianYear + 5500;
 
-            int goldenNumber = (ameteAlem % 19) + 1;
-            int abekte = (goldenNumber * 11) % 30;
-            int metqi = abekte == 0 ? 30 : 30 - abekte;
-
-            int metqiMonth = (abekte <= 14) ? 1 : 2;
-            int metqiDay = metqi;
-
-            int startingWeekday = ((int)new DateTime(ethiopianYear + 7, 9, 11).DayOfWeek + 6) % 7;
-            int metqiAbsoluteDays = ((metqiMonth - 1) * 30) + metqiDay;
-            int metqiWeekday = (startingWeekday + metqiAbsoluteDays - 1) % 7;
-
-            int[] weekdayTewsak = { 7, 6, 5, 4, 3, 2, 8 };
-            int tewsak = weekdayTewsak[metqiWeekday];
-
-            int ninivehDay;
-            int ninivehMonth;
-
-            if (metqiMonth == 1 && (metqiDay + tewsak) > 30)
+            int medeb = ameteAlem % 19;
+            int wenber = medeb == 0 ? 18 : (medeb == 1 ? 0 : medeb - 1);
+            int abekte = (11 * wenber) % 30;
+            int metq = Math.Abs(30 - abekte);
+            int metqMonth = metq > 14 ? 1 : 2;
+            
+            int meteneRabit = ameteAlem / 4;
+            int mebacha = (int)((ameteAlem + meteneRabit) % 7);
+            
+            int tewsakDay = WeekdayN(metqMonth, metq, mebacha);
+            
+            int tewsak = tewsakDay switch
             {
-                ninivehMonth = 5;
-                ninivehDay = (metqiDay + tewsak) - 30;
-            }
-            else if (metqiMonth == 1)
-            {
-                ninivehMonth = 5;
-                ninivehDay = metqiDay + tewsak;
-            }
-            else
-            {
-                ninivehMonth = 6;
-                ninivehDay = (metqiDay + tewsak > 30) ? (metqiDay + tewsak) - 30 : metqiDay + tewsak;
-            }
-
-            int ninivehAbsolute = ((ninivehMonth - 1) * 30) + ninivehDay;
-
-            holidays[ninivehAbsolute] = "ጾመ ነነዌ (Nineveh Fast)";
-            holidays[ninivehAbsolute + 14] = "ዐቢይ ጾም (Great Lent)";
-            holidays[ninivehAbsolute + 41] = "ደብረ ዘይት (Mount of Olives)";
-            holidays[ninivehAbsolute + 62] = "ሆሣዕና (Palm Sunday)";
-            holidays[ninivehAbsolute + 67] = "ስቅለት (Good Friday)";
-            holidays[ninivehAbsolute + 69] = "ትንሣኤ (Easter)";
-            holidays[ninivehAbsolute + 93] = "ርክበ ካህናት (Assembly of Priests)";
-            holidays[ninivehAbsolute + 109] = "ዕርገት (Ascension)";
-            holidays[ninivehAbsolute + 119] = "ጰራቅሊጦስ (Pentecost)";
-            holidays[ninivehAbsolute + 121] = "ጾመ ሐዋርያት (Apostles Fast)";
+                6 => 127,
+                0 => 126,
+                1 => 125,
+                2 => 124,
+                3 => 123,
+                4 => 122,
+                5 => 128,
+                _ => 0
+            };
+            
+            var (ninivehMonth, ninivehDay) = Monthday(metqMonth, metq, tewsak);
+            
+            holidays[((ninivehMonth - 1) * 30) + ninivehDay] = "ጾመ ነነዌ (Nineveh Fast)";
+            
+            var (lentMonth, lentDay) = Monthday(ninivehMonth, ninivehDay, 14);
+            holidays[((lentMonth - 1) * 30) + lentDay] = "ዐቢይ ጾም (Great Lent)";
+            
+            var (debreMonth, debreDay) = Monthday(lentMonth, lentDay, 27);
+            holidays[((debreMonth - 1) * 30) + debreDay] = "ደብረ ዘይት (Mount of Olives)";
+            
+            var (fridayMonth, fridayDay) = Monthday(debreMonth, debreDay, 26);
+            holidays[((fridayMonth - 1) * 30) + fridayDay] = "ስቅለት (Good Friday)";
+            
+            var (easterMonth, easterDay) = Monthday(debreMonth, debreDay, 28);
+            int easterAbs = ((easterMonth - 1) * 30) + easterDay;
+            holidays[easterAbs] = "ትንሣኤ (Easter)";
+            
+            var (rkMonth, rkDay) = Monthday(easterMonth, easterDay, 24);
+            holidays[((rkMonth - 1) * 30) + rkDay] = "ርክበ ካህናት (Assembly of Priests)";
+            
+            var (erigetMonth, erigetDay) = Monthday(easterMonth, easterDay, 39);
+            holidays[((erigetMonth - 1) * 30) + erigetDay] = "ዕርገት (Ascension)";
+            
+            var (peraklitosMonth, peraklitosDay) = Monthday(easterMonth, easterDay, 49);
+            holidays[((peraklitosMonth - 1) * 30) + peraklitosDay] = "ጰራቅሊጦስ (Pentecost/Peraklitos)";
+            
+            var (hawariyatMonth, hawariyatDay) = Monthday(easterMonth, easterDay, 50);
+            holidays[((hawariyatMonth - 1) * 30) + hawariyatDay] = "ጾመ ሐዋርያት (Apostles Fast)";
 
             return holidays;
+        }
+
+        private int WeekdayN(int m, int dy, int mebacha)
+        {
+            return (((m - 1) * 30 + (dy - 1)) % 7 + mebacha) % 7;
+        }
+
+        private (int month, int day) Monthday(int m1, int d1, int x)
+        {
+            int d2 = (d1 + x) % 30;
+            int m2 = m1 + (d1 + x) / 30;
+            if (d2 == 0)
+            {
+                d2 = 30;
+                m2 = m2 - 1;
+            }
+            return (m2, d2);
         }
 
         private void AssignFixedFeasts(int month, int day, DayModel model)
@@ -190,6 +211,4 @@ namespace EthiopianCalendarPortal.Pages
             return "";
         }
     }
-
-   
 }

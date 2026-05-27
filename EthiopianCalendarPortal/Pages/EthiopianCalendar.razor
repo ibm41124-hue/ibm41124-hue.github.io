@@ -255,7 +255,6 @@
                     {
                         <div class="ec-cell empty"></div>
                     }
-                    @{ int monthIndex counter = 0; }
                     @foreach (var d in currentMonth.Days)
                     {
                         var typeClass = GetTypeClass(d.BgClass);
@@ -263,7 +262,7 @@
                         var isSunday = (colIndex == 6);
                         var dotClass = GetDotClass(d.BgClass);
                         var hasHoliday = !string.IsNullOrEmpty(d.HolidayName);
-                        var isToday = IsToday(d.EthiopianDay, counter);
+                        var isToday = IsToday(d.EthiopianDay, currentMonthIndex);
                         <div class="ec-cell @typeClass @(isSunday ? "sunday" : "") @(isToday ? "is-today" : "")" title="@(hasHoliday ? d.HolidayName : "")">
                             <span class="ec-eth">@d.EthiopianDay</span>
                             <span class="ec-greg">@d.GregorianDateText</span>
@@ -272,7 +271,6 @@
                                 <div class="ec-feast-dot @dotClass"></div>
                             }
                         </div>
-                        counter++;
                     }
                 </div>
             </div>

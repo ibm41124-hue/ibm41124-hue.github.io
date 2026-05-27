@@ -11,6 +11,9 @@ namespace EthiopianCalendarPortal.Pages
         protected int inputYear = 2018;
         protected int displayedYear;
         protected List<MonthModel>? monthsData;
+        protected int todayEthiopianDay = 19;
+        protected int todayEthiopianMonth = 8;
+        protected int todayEthiopianYear = 2018;
 
         protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
 
@@ -27,9 +30,13 @@ namespace EthiopianCalendarPortal.Pages
         protected override void OnInitialized()
         {
             DateTime today = DateTime.UtcNow;
-            inputYear = ConvertGregorianToEthiopianYear(today);
+            todayEthiopianYear = ConvertGregorianToEthiopianYear(today);
+            todayEthiopianMonth = ConvertGregorianToEthiopianMonth(today);
+            todayEthiopianDay = ConvertGregorianToEthiopianDay(today);
+            
+            inputYear = todayEthiopianYear;
             GenerateCalendar();
-            currentMonthIndex = ConvertGregorianToEthiopianMonth(today);
+            currentMonthIndex = todayEthiopianMonth;
         }
 
         private int ConvertGregorianToEthiopianYear(DateTime gregorianDate)
@@ -50,56 +57,50 @@ namespace EthiopianCalendarPortal.Pages
             int gcMonth = gregorianDate.Month;
             int gcDay = gregorianDate.Day;
             
-            // Direct mapping: May 11 - June 10 = Ginbot (index 8)
             if (gcMonth == 5 && gcDay >= 11) return 8;
             if (gcMonth == 6 && gcDay < 11) return 8;
-            
-            // September 11 - October 10 = Meskerem (index 0)
             if (gcMonth == 9 && gcDay >= 11) return 0;
             if (gcMonth == 10 && gcDay < 11) return 0;
-            
-            // October 11 - November 10 = Tikimt (index 1)
             if (gcMonth == 10 && gcDay >= 11) return 1;
             if (gcMonth == 11 && gcDay < 11) return 1;
-            
-            // November 11 - December 10 = Hidar (index 2)
             if (gcMonth == 11 && gcDay >= 11) return 2;
             if (gcMonth == 12 && gcDay < 11) return 2;
-            
-            // December 11 - January 10 = Tahsas (index 3)
             if (gcMonth == 12 && gcDay >= 11) return 3;
             if (gcMonth == 1 && gcDay < 11) return 3;
-            
-            // January 11 - February 10 = Ter (index 4)
             if (gcMonth == 1 && gcDay >= 11) return 4;
             if (gcMonth == 2 && gcDay < 11) return 4;
-            
-            // February 11 - March 10 = Yekatit (index 5)
             if (gcMonth == 2 && gcDay >= 11) return 5;
             if (gcMonth == 3 && gcDay < 11) return 5;
-            
-            // March 11 - April 10 = Megabit (index 6)
             if (gcMonth == 3 && gcDay >= 11) return 6;
             if (gcMonth == 4 && gcDay < 11) return 6;
-            
-            // April 11 - May 10 = Miyazya (index 7)
             if (gcMonth == 4 && gcDay >= 11) return 7;
             if (gcMonth == 5 && gcDay < 11) return 7;
-            
-            // June 11 - July 10 = Sene (index 9)
             if (gcMonth == 6 && gcDay >= 11) return 9;
             if (gcMonth == 7 && gcDay < 11) return 9;
-            
-            // July 11 - August 10 = Hamle (index 10)
             if (gcMonth == 7 && gcDay >= 11) return 10;
             if (gcMonth == 8 && gcDay < 11) return 10;
-            
-            // August 11 - September 10 = Nehase (index 11)
             if (gcMonth == 8 && gcDay >= 11) return 11;
             if (gcMonth == 9 && gcDay < 11) return 11;
             
-            // Default fallback
             return 0;
+        }
+
+        private int ConvertGregorianToEthiopianDay(DateTime gregorianDate)
+        {
+            int gcMonth = gregorianDate.Month;
+            int gcDay = gregorianDate.Day;
+            int ecMonth = ConvertGregorianToEthiopianMonth(gregorianDate);
+            
+            int[] monthStartDays = { 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10 };
+            
+            int startDay = monthStartDays[ecMonth];
+            
+            return gcDay - startDay + 1;
+        }
+
+        protected bool IsToday(int ethiopianDay, int monthIndex)
+        {
+            return ethiopianDay == todayEthiopianDay && monthIndex == todayEthiopianMonth && displayedYear == todayEthiopianYear;
         }
 
         protected void GenerateCalendar()

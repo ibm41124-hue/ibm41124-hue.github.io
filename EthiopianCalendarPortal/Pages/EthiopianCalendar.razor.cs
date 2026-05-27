@@ -12,6 +12,7 @@ namespace EthiopianCalendarPortal.Pages
         protected int displayedYear;
         protected List<MonthModel>? monthsData;
 
+        // Your Amharic weekday headers: Monday=0, Tuesday=1, ..., Sunday=6
         protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
 
         private readonly (string Amharic, string English)[] monthNames = {
@@ -35,7 +36,12 @@ namespace EthiopianCalendarPortal.Pages
             bool isLeapYear = displayedYear % 4 == 3;
             int targetGregorianYear = displayedYear + 7;
             DateTime newYearDate = new DateTime(targetGregorianYear, 9, 11);
-            int currentWeekdayOffset = (int)newYearDate.DayOfWeek;
+            
+            // FIXED: Convert C# DayOfWeek (Sun=0) to our array (Mon=0, Sun=6)
+            // C#: Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6
+            // Ours: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
+            int currentWeekdayOffset = ((int)newYearDate.DayOfWeek + 6) % 7;
+            
             DateTime runningGregorianDate = newYearDate;
 
             var movableHolidays = CalculateBahireHasabMovableFeasts(displayedYear);
@@ -104,7 +110,7 @@ namespace EthiopianCalendarPortal.Pages
             int metqiMonth = (abekte <= 14) ? 1 : 2;
             int metqiDay = metqi;
 
-            int startingWeekday = (int)new DateTime(ethiopianYear + 7, 9, 11).DayOfWeek;
+            int startingWeekday = ((int)new DateTime(ethiopianYear + 7, 9, 11).DayOfWeek + 6) % 7;
             int metqiAbsoluteDays = ((metqiMonth - 1) * 30) + metqiDay;
             int metqiWeekday = (startingWeekday + metqiAbsoluteDays - 1) % 7;
 
@@ -148,7 +154,6 @@ namespace EthiopianCalendarPortal.Pages
 
         private void AssignFixedFeasts(int month, int day, DayModel model)
         {
-            // Monthly saints (set first)
             if (day == 5) { model.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; model.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 7) { model.HolidayName = "ሥላሴ (Holy Trinity)"; model.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 12) { model.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; model.BgClass = "bg-info text-dark opacity-75"; }
@@ -159,7 +164,6 @@ namespace EthiopianCalendarPortal.Pages
             else if (day == 27) { model.HolidayName = "መድኃኔዓለም (Savior of the World)"; model.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 29) { model.HolidayName = "በዓለ ወልድ (Feast of the Son)"; model.BgClass = "bg-info text-dark opacity-75"; }
 
-            // Annual feasts (override monthly where they overlap)
             if (month == 1 && day == 1) { model.HolidayName = "እንቁጣጣሽ / New Year"; model.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 1 && day == 17) { model.HolidayName = "መስቀል / Meskel"; model.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 4 && day == 29) { model.HolidayName = "ልደት / Christmas (Genna)"; model.BgClass = "bg-warning fw-bold text-dark"; }
@@ -187,5 +191,20 @@ namespace EthiopianCalendarPortal.Pages
         }
     }
 
+    public class MonthModel
+    {
+        public string AmharicName { get; set; } = "";
+        public string EnglishName { get; set; } = "";
+        public int StartWeekday { get; set; }
+        public string GregorianYearText { get; set; } = "";
+        public List<DayModel> Days { get; set; } = new();
+    }
 
+    public class DayModel
+    {
+        public int EthiopianDay { get; set; }
+        public string GregorianDateText { get; set; } = "";
+        public string? HolidayName { get; set; }
+        public string? BgClass { get; set; }
+    }
 }

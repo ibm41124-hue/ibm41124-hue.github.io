@@ -191,20 +191,5 @@ namespace EthiopianCalendarPortal.Pages
         }
     }
 
-    public class MonthModel
-    {
-        public string AmharicName { get; set; } = "";
-        public string EnglishName { get; set; } = "";
-        public int StartWeekday { get; set; }
-        public string GregorianYearText { get; set; } = "";
-        public List<DayModel> Days { get; set; } = new();
-    }
-
-    public class DayModel
-    {
-        public int EthiopianDay { get; set; }
-        public string GregorianDateText { get; set; } = "";
-        public string? HolidayName { get; set; }
-        public string? BgClass { get; set; }
-    }
+   
 }

@@ -12,7 +12,7 @@ namespace EthiopianCalendarPortal.Pages
         protected int displayedYear;
         protected List<MonthModel>? monthsData;
 
-        protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
+        protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
 
         private readonly (string Amharic, string English)[] monthNames = {
             ("መስከረም", "Meskerem"), ("ጥቅምት", "Tikimt"), ("ኅዳር", "Hidar"),
@@ -24,7 +24,77 @@ namespace EthiopianCalendarPortal.Pages
 
         private MonthModel? currentMonth => (monthsData != null && currentMonthIndex >= 0 && currentMonthIndex < monthsData.Count) ? monthsData[currentMonthIndex] : null;
 
-        protected override void OnInitialized() => GenerateCalendar();
+        protected override void OnInitialized()
+        {
+            // Set inputYear to today's Ethiopian year
+            DateTime today = DateTime.UtcNow;
+            inputYear = ConvertGregorianToEthiopianYear(today);
+            GenerateCalendar();
+            
+            // Set currentMonthIndex to today's month (Ginbot = index 8 for May 2026)
+            currentMonthIndex = ConvertGregorianMonthToEthiopianMonth(today.Month, today.Day, inputYear);
+        }
+
+        // Convert Gregorian date to Ethiopian year
+        private int ConvertGregorianToEthiopianYear(DateTime gregorianDate)
+        {
+            int gcYear = gregorianDate.Year;
+            int ecYear = gcYear - 7;
+            
+            // Ethiopian New Year is Sept 11 (or Sept 12 in leap years)
+            // If before New Year, subtract 1 more year
+            if (gregorianDate.Month < 9 || (gregorianDate.Month == 9 && gregorianDate.Day < 11))
+            {
+                ecYear--;
+            }
+            
+            return ecYear;
+        }
+
+        // Convert Gregorian month/day to Ethiopian month index (0-12)
+        private int ConvertGregorianMonthToEthiopianMonth(int gcMonth, int gcDay, int ecYear)
+        {
+            bool isLeapYear = ecYear % 4 == 0;
+            
+            // Ethiopian month start dates in Gregorian (for non-leap year)
+            int[] gcMonths = { 9, 9, 10, 10, 11, 11, 12, 12, 1, 2, 3, 4, 5 };
+            int[] gcDays = { 11, 27, 26, 25, 25, 24, 24, 23, 23, 22, 22, 21, 20 };
+            
+            // Adjust for leap year
+            if (isLeapYear && gcMonth >= 2 && gcMonth <= 9)
+            {
+                for (int i = 0; i < gcMonths.Length; i++)
+                {
+                    if (gcMonths[i] >= 2 && gcMonths[i] <= 9)
+                    {
+                        gcDays[i]++;
+                    }
+                }
+            }
+            
+            DateTime today = new DateTime(DateTime.UtcNow.Year, gcMonth, gcDay);
+            
+            for (int i = 0; i < 13; i++)
+            {
+                int nextI = (i + 1) % 13;
+                DateTime start = new DateTime(DateTime.UtcNow.Year, gcMonths[i], gcDays[i]);
+                DateTime end = new DateTime(DateTime.UtcNow.Year, gcMonths[nextI], gcDays[nextI]).AddDays(-1);
+                
+                // Handle year crossover
+                if (gcMonths[i] > gcMonths[nextI])
+                {
+                    end = new DateTime(DateTime.UtcNow.Year + 1, gcMonths[nextI], gcDays[nextI]).AddDays(-1);
+                }
+                
+                if (today >= start && today <= end)
+                {
+                    return i;
+                }
+            }
+            
+            // Fallback: return Ginbot (8) for May
+            return 8;
+        }
 
         protected void GenerateCalendar()
         {

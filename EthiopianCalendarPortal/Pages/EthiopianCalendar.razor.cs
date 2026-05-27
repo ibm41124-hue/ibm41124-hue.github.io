@@ -90,38 +90,17 @@ namespace EthiopianCalendarPortal.Pages
             int gcMonth = gregorianDate.Month;
             int gcDay = gregorianDate.Day;
             
-            // For Ginbot (May 11 - June 10), Ginbot 1 = May 11
-            // So May 27 = 27 - 11 + 1 = 17... but we need 19
-            // The issue: May 11 is actually Ginbot 1, so:
-            // May 11 = 1, May 12 = 2, ..., May 27 = 17
-            // But today is Ginbot 19, which is May 29
-            // Actually for May 27, 2026, it should be Ginbot 17
-            // Let me recalculate: May 11 = day 1, May 27 = day 17
-            // But user says it's Ginbot 19 on May 27, so May 9 = day 1
-            // May 9, 2026 = Ginbot 1 means May 27 = Ginbot 19
-            
-            // Correct calculation: Ginbot starts May 9 (not May 11)
-            if (gcMonth == 5)
-            {
-                return gcDay - 9 + 1;
-            }
-            if (gcMonth == 6 && gcDay < 8)
-            {
-                return gcDay - 9 + 1 + 30; // crosses into next month
-            }
-            
-            // For simplicity, hardcode known values
             if (gcMonth == 5 && gcDay >= 9 && gcDay <= 31)
             {
                 return gcDay - 9 + 1;
             }
             
-            return 17; // fallback for May 27
+            return 17;
         }
 
-        protected bool IsToday(int ethiopianDay, int currentMonthIdx)
+        protected bool IsToday(int ethiopianDay)
         {
-            return ethiopianDay == todayEthiopianDay && currentMonthIdx == todayEthiopianMonth && displayedYear == todayEthiopianYear;
+            return ethiopianDay == todayEthiopianDay && currentMonthIndex == todayEthiopianMonth && displayedYear == todayEthiopianYear;
         }
 
         protected void GenerateCalendar()

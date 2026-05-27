@@ -141,9 +141,9 @@
     .ec-legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .ec-layout {
         display: grid;
-        grid-template-columns: 1fr 330px;
+        grid-template-columns: 1fr 280px;
         gap: 1.75rem;
-        max-width: 1180px;
+        max-width: 1050px;
         margin: 0 auto;
         padding: 1.75rem;
         align-items: start;
@@ -192,11 +192,6 @@
     .ec-feast-item .fdot.monthly { background: var(--ec-blue); }
     .ec-feast-item strong { color: #111; font-family: sans-serif; }
     .ec-no-feasts { padding: 0.9rem 1rem; font-size: 0.78rem; color: #AAA; text-align: center; font-family: sans-serif; }
-    .ec-glossary { border: 1px solid var(--ec-border); border-radius: 10px; overflow: hidden; }
-    .ec-gloss-head { padding: 0.6rem 1rem; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.04em; font-family: sans-serif; display: flex; align-items: center; gap: 6px; }
-    .ec-gloss-head.annual { background: #FDF3DC; color: #7A5800; border-bottom: 1px solid #EDD990; }
-    .ec-gloss-head.movable { background: var(--ec-red-light); color: #6A1414; border-bottom: 1px solid #F0B8B8; }
-    .ec-gloss-head.monthly { background: var(--ec-blue-light); color: #1E3A8A; border-bottom: 1px solid #C0D8F8; }
     .ec-empty-state { padding: 3rem; text-align: center; color: #AAA; font-size: 1rem; font-family: sans-serif; }
 </style>
 
@@ -262,7 +257,7 @@
                         var isSunday = (colIndex == 6);
                         var dotClass = GetDotClass(d.BgClass);
                         var hasHoliday = !string.IsNullOrEmpty(d.HolidayName);
-                        var isToday = IsToday(d.EthiopianDay, currentMonthIndex);
+                        var isToday = IsToday(d.EthiopianDay);
                         <div class="ec-cell @typeClass @(isSunday ? "sunday" : "") @(isToday ? "is-today" : "")" title="@(hasHoliday ? d.HolidayName : "")">
                             <span class="ec-eth">@d.EthiopianDay</span>
                             <span class="ec-greg">@d.GregorianDateText</span>
@@ -298,41 +293,6 @@
                             }
                         </ul>
                     }
-                </div>
-
-                <div class="ec-glossary">
-                    <div class="ec-gloss-head annual">&#x1F7E1; Major Annual Holidays</div>
-                    <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Meskerem 1:</strong> New Year (Enkutatash)</span></li>
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Meskerem 17:</strong> Meskel (True Cross)</span></li>
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Tahsas 29:</strong> Christmas (Genna)</span></li>
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Ter 11:</strong> Timkat (Epiphany)</span></li>
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Ter 12:</strong> Cana ZeGelila</span></li>
-                        <li class="ec-feast-item"><span class="fdot annual"></span><span><strong>Nehase 13:</strong> Buhe (Transfiguration)</span></li>
-                    </ul>
-                </div>
-
-                <div class="ec-glossary">
-                    <div class="ec-gloss-head movable">&#x1F534; Movable Feasts</div>
-                    <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Nineveh Fast:</strong> Before Lent</span></li>
-                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Great Lent:</strong> 55 days</span></li>
-                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Easter (Tr'nsae):</strong> Resurrection</span></li>
-                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Ascension:</strong> 40 days after Easter</span></li>
-                        <li class="ec-feast-item"><span class="fdot movable"></span><span><strong>Pentecost:</strong> 50 days after Easter</span></li>
-                    </ul>
-                </div>
-
-                <div class="ec-glossary">
-                    <div class="ec-gloss-head monthly">&#x1F535; Monthly Saints</div>
-                    <ul class="ec-feast-list">
-                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 5:</strong> Abune Gebre Menfas Qiddus</span></li>
-                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 7:</strong> Holy Trinity</span></li>
-                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 12:</strong> St. Michael</span></li>
-                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 19:</strong> St. Gabriel</span></li>
-                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 21:</strong> St. Mary</span></li>
-                        <li class="ec-feast-item"><span class="fdot monthly"></span><span><strong>Day 23:</strong> St. George</span></li>
-                    </ul>
                 </div>
             </div>
         </div>

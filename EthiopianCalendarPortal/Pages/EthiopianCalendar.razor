@@ -173,6 +173,7 @@
     .ec-cell.is-annual { background: var(--ec-gold-light); }
     .ec-cell.is-movable { background: var(--ec-red-light); }
     .ec-cell.is-monthly { background: var(--ec-blue-light); }
+    .ec-cell.is-today { background: #FFD700 !important; border: 2px solid #FFA500; }
     .ec-eth { font-size: 1.1rem; font-weight: bold; color: var(--ec-dark); line-height: 1; }
     .ec-greg { font-size: 0.58rem; color: #AAA; margin-top: 3px; font-family: sans-serif; white-space: nowrap; }
     .ec-feast-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
@@ -254,6 +255,7 @@
                     {
                         <div class="ec-cell empty"></div>
                     }
+                    @{ int monthIndex counter = 0; }
                     @foreach (var d in currentMonth.Days)
                     {
                         var typeClass = GetTypeClass(d.BgClass);
@@ -261,7 +263,8 @@
                         var isSunday = (colIndex == 6);
                         var dotClass = GetDotClass(d.BgClass);
                         var hasHoliday = !string.IsNullOrEmpty(d.HolidayName);
-                        <div class="ec-cell @typeClass @(isSunday ? "sunday" : "")" title="@(hasHoliday ? d.HolidayName : "")">
+                        var isToday = IsToday(d.EthiopianDay, counter);
+                        <div class="ec-cell @typeClass @(isSunday ? "sunday" : "") @(isToday ? "is-today" : "")" title="@(hasHoliday ? d.HolidayName : "")">
                             <span class="ec-eth">@d.EthiopianDay</span>
                             <span class="ec-greg">@d.GregorianDateText</span>
                             @if (hasHoliday)
@@ -269,6 +272,7 @@
                                 <div class="ec-feast-dot @dotClass"></div>
                             }
                         </div>
+                        counter++;
                     }
                 </div>
             </div>

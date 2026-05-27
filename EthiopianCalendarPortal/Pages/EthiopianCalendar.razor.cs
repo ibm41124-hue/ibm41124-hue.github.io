@@ -98,9 +98,9 @@ namespace EthiopianCalendarPortal.Pages
             return gcDay - startDay + 1;
         }
 
-        protected bool IsToday(int ethiopianDay, int monthIndex)
+        protected bool IsToday(int ethiopianDay, int currentMonthIdx)
         {
-            return ethiopianDay == todayEthiopianDay && monthIndex == todayEthiopianMonth && displayedYear == todayEthiopianYear;
+            return ethiopianDay == todayEthiopianDay && currentMonthIdx == todayEthiopianMonth && displayedYear == todayEthiopianYear;
         }
 
         protected void GenerateCalendar()

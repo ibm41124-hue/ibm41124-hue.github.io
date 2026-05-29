@@ -15,7 +15,7 @@ namespace EthiopianCalendarPortal.Pages
         protected int todayEthiopianMonth = 8;
         protected int todayEthiopianYear = 2018;
 
-        protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሁድ" };
+        protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሑድ" };
 
         private readonly (string Amharic, string English)[] monthNames = {
             ("መስከረም", "Meskerem"), ("ጥቅምት", "Tikimt"), ("ኅዳር", "Hidar"),

@@ -250,43 +250,44 @@ namespace EthiopianCalendarPortal.Pages
             return (m2, d2);
         }
 
-        private void AssignFixedFeasts(int month, int day, DayModel target)
-        {
-           if (day == 5) { target.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 7) { target.HolidayName = "ሥላሴ (Holy Trinity)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 12) { target.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 16) { target.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 19) { target.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 21) { target.HolidayName = "ቅድስት ማርያም (St. Mary)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 23) { target.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 27) { target.HolidayName = "መድኃኔዓለም (Savior of the World)"; target.BgClass = "bg-info text-dark opacity-75"; }
-else if (day == 29) { target.HolidayName = "በዓለ ወልድ (Feast of the Son)"; target.BgClass = "bg-info text-dark opacity-75"; }
+       private void AssignFixedFeasts(int month, int day, DayModel target)
+{
+    // 1. Monthly recurring feasts (every month, by day number only)
+    if (day == 5) { target.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 7) { target.HolidayName = "ሥላሴ (Holy Trinity)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 12) { target.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 16) { target.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 19) { target.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 21) { target.HolidayName = "ቅድስት ማርያም (St. Mary)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 23) { target.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 27) { target.HolidayName = "መድኃኔዓለም (Savior of the World)"; target.BgClass = "bg-info text-dark opacity-75"; }
+    else if (day == 29) { target.HolidayName = "በዓለ ወልድ (Feast of the Son)"; target.BgClass = "bg-info text-dark opacity-75"; }
 
-            // 2. Fixed Annual Feasts (Based on Ethiopian Month and Ethiopian Day)
-            if (month == 1 && day == 1) { target.HolidayName = "እንቁጣጣሽ / New Year"; }
-            else if (month == 1 && day == 17) { target.HolidayName = "መስቀል / Meskel"; }
-            else if (month == 1 && day == 21) { target.HolidayName = "Gishen"; }
-            else if (month == 2 && day == 27) { target.HolidayName = "YeAmetu መድኃኔዓለም"; }
-            else if (month == 3 && day == 6) { target.HolidayName = "Qusqam"; }
-            else if (month == 3 && day == 21) { target.HolidayName = "Tsiyon ማርያም"; }
-            else if (month == 4 && day == 19) { target.HolidayName = "YeAmetu ቅዱስ ገብርኤል"; }
-            else if (month == 4 && day == 29) { target.HolidayName = "ልደት / Christmas (Genna)"; }
-            else if (month == 5 && day == 11) { target.HolidayName = "ጥምቀት / Timkat (Epiphany)"; }
-            else if (month == 5 && day == 12) { target.HolidayName = "ቃና ዘገሊላ / Kana ZeGelila"; }
-            else if (month == 5 && day == 21) { target.HolidayName = "አስተርእዮ ማርያም"; }
-            else if (month == 6 && day == 16) { target.HolidayName = "YeAmetu ቅድስት ኪዳነ ምሕረት"; }
-            else if (month == 6 && day == 23) { target.HolidayName = "YeAmetu ቅዱስ ጊዮርጊስ"; }
-            else if (month == 7 && day == 27) { target.HolidayName = "YeAmetu መድኃኔዓለም (ጥንተ ስቅለት)"; }
-            else if (month == 8 && day == 23) { target.HolidayName = "YeAmetu ቅዱስ ጊዮርጊስ"; }
-            else if (month == 9 && day == 1) { target.HolidayName = "ልደታ ለማርያም"; }
-            else if (month == 9 && day == 21) { target.HolidayName = "ደብረ ምጥማቅ"; }
-            else if (month == 10 && day == 12) { target.HolidayName = "YeAmetu ቅዱስ ሚካኤል"; }
-            else if (month == 10 && day == 21) { target.HolidayName = "ሕንጸተ ቤታ ለማርያም"; }
-            else if (month == 11 && day == 5) { target.HolidayName = "ጴጥሮስ ወጳውሎስ"; }
-            else if (month == 11 && day == 19) { target.HolidayName = "YeAmetu ቅዱስ ገብርኤል"; }
-            else if (month == 12 && day == 13) { target.HolidayName = "ደብረ ታቦር / Buhe"; }
-            else if (month == 12 && day == 16) { target.HolidayName = "ፍልሰታ ለማርያም"; }
-        }
+    // 2. Fixed Annual Feasts — override monthly feasts where they coincide
+    if (month == 1 && day == 1) { target.HolidayName = "እንቁጣጣሽ / New Year"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 1 && day == 17) { target.HolidayName = "መስቀል / Meskel"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 1 && day == 21) { target.HolidayName = "Gishen"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 2 && day == 27) { target.HolidayName = "YeAmetu መድኃኔዓለም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 3 && day == 6) { target.HolidayName = "Qusqam"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 3 && day == 21) { target.HolidayName = "Tsiyon ማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 4 && day == 19) { target.HolidayName = "YeAmetu ቅዱስ ገብርኤል"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 4 && day == 29) { target.HolidayName = "ልደት / Christmas (Genna)"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 5 && day == 11) { target.HolidayName = "ጥምቀት / Timkat (Epiphany)"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 5 && day == 12) { target.HolidayName = "ቃና ዘገሊላ / Kana ZeGelila"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 5 && day == 21) { target.HolidayName = "አስተርእዮ ማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 6 && day == 16) { target.HolidayName = "YeAmetu ቅድስት ኪዳነ ምሕረት"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 6 && day == 23) { target.HolidayName = "YeAmetu ቅዱስ ጊዮርጊስ"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 7 && day == 27) { target.HolidayName = "YeAmetu መድኃኔዓለም (ጥንተ ስቅለት)"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 8 && day == 23) { target.HolidayName = "YeAmetu ቅዱስ ጊዮርጊስ"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 9 && day == 1) { target.HolidayName = "ልደታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 9 && day == 21) { target.HolidayName = "ደብረ ምጥማቅ"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 10 && day == 12) { target.HolidayName = "YeAmetu ቅዱስ ሚካኤል"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 10 && day == 21) { target.HolidayName = "ሕንጸተ ቤታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 11 && day == 5) { target.HolidayName = "ጴጥሮስ ወጳውሎስ"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 11 && day == 19) { target.HolidayName = "YeAmetu ቅዱስ ገብርኤል"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 12 && day == 13) { target.HolidayName = "ደብረ ታቦር / Buhe"; target.BgClass = "bg-warning fw-bold text-dark"; }
+    else if (month == 12 && day == 16) { target.HolidayName = "ፍልሰታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+}
 
         protected string GetTypeClass(string? bgClass)
         {

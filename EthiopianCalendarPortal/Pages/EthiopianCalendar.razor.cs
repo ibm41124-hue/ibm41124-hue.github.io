@@ -252,15 +252,15 @@ namespace EthiopianCalendarPortal.Pages
 
         private void AssignFixedFeasts(int month, int day, DayModel target)
         {
-            if (day == 5) { target.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 7) { target.HolidayName = "ሥላሴ (Holy Trinity)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 12) { target.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 16) { target.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 19) { target.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 21) { target.HolidayName = "ቅድስት ማርያም (St. Mary)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 23) { target.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 27) { target.HolidayName = "መድኃኔዓለም (Savior of the World)"; model.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 29) { target.HolidayName = "በዓለ ወልድ (Feast of the Son)"; model.BgClass = "bg-info text-dark opacity-75"; }
+           if (day == 5) { target.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 7) { target.HolidayName = "ሥላሴ (Holy Trinity)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 12) { target.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 16) { target.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 19) { target.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 21) { target.HolidayName = "ቅድስት ማርያም (St. Mary)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 23) { target.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 27) { target.HolidayName = "መድኃኔዓለም (Savior of the World)"; target.BgClass = "bg-info text-dark opacity-75"; }
+else if (day == 29) { target.HolidayName = "በዓለ ወልድ (Feast of the Son)"; target.BgClass = "bg-info text-dark opacity-75"; }
 
             // 2. Fixed Annual Feasts (Based on Ethiopian Month and Ethiopian Day)
             if (month == 1 && day == 1) { target.HolidayName = "እንቁጣጣሽ / New Year"; }

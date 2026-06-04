@@ -31,6 +31,9 @@ jobs:
       - name: Publish
         run: dotnet publish EthiopianCalendarPortal/EthiopianCalendarPortal.csproj -c Release -o publish
 
+      - name: Debug publish output
+        run: find publish -type f | head -30
+
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
 

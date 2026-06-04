@@ -31,8 +31,8 @@ jobs:
       - name: Publish
         run: dotnet publish EthiopianCalendarPortal/EthiopianCalendarPortal.csproj -c Release -o publish
 
-      - name: Debug publish output
-        run: find publish -type f | head -30
+      - name: Debug base href
+        run: grep -i "base href" publish/wwwroot/index.html
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
@@ -43,7 +43,9 @@ jobs:
       - name: Set base href for GitHub Pages
         run: |
           cp -r publish/wwwroot publish/wwwroot-gh
-          sed -i 's|<base href="/" />|<base href="/EthiopianCalendarPortal/" />|g' publish/wwwroot-gh/index.html
+          sed -i 's|<base href=".*" />|<base href="/EthiopianCalendarPortal/" />|g' publish/wwwroot-gh/index.html
+          echo "--- After replacement ---"
+          grep -i "base href" publish/wwwroot-gh/index.html
           cp publish/wwwroot-gh/index.html publish/wwwroot-gh/404.html
 
       - name: Upload GitHub Pages artifact

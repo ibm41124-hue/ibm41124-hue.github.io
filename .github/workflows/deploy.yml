@@ -37,17 +37,19 @@ jobs:
       - name: Set base href for GitHub Pages
         run: |
           cp -r publish/wwwroot publish/wwwroot-gh
-          python3 -c "
-          import re
-          with open('publish/wwwroot-gh/index.html', 'r') as f:
-              content = f.read()
-          print('BEFORE:', re.search(r'<base[^>]*>', content).group())
-          content = re.sub(r'<base\s+href=\"[^\"]*\"\s*/>', '<base href=\"/EthiopianCalendarPortal/\" />', content)
-          print('AFTER:', re.search(r'<base[^>]*>', content).group())
-          with open('publish/wwwroot-gh/index.html', 'w') as f:
-              f.write(content)
-          "
+          sed -i 's|<base href="/" />|<base href="/EthiopianCalendarPortal/" />|g' publish/wwwroot-gh/index.html
+          echo "=== base href check ==="
+          grep "base href" publish/wwwroot-gh/index.html
           cp publish/wwwroot-gh/index.html publish/wwwroot-gh/404.html
+
+      - name: Verify wwwroot-gh contents
+        run: |
+          echo "=== Root files ==="
+          ls -la publish/wwwroot-gh/
+          echo "=== CSS folder ==="
+          ls -la publish/wwwroot-gh/css/
+          echo "=== Framework folder ==="
+          ls -la publish/wwwroot-gh/_framework/ | head -10
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3

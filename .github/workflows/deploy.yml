@@ -31,21 +31,22 @@ jobs:
       - name: Publish
         run: dotnet publish EthiopianCalendarPortal/EthiopianCalendarPortal.csproj -c Release -o publish
 
-      - name: Debug base href
-        run: grep -i "base href" publish/wwwroot/index.html
-
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
-
-      - name: Copy index.html to 404.html
-        run: cp publish/wwwroot/index.html publish/wwwroot/404.html
 
       - name: Set base href for GitHub Pages
         run: |
           cp -r publish/wwwroot publish/wwwroot-gh
-          sed -i 's|<base href=".*" />|<base href="/EthiopianCalendarPortal/" />|g' publish/wwwroot-gh/index.html
-          echo "--- After replacement ---"
-          grep -i "base href" publish/wwwroot-gh/index.html
+          python3 -c "
+          import re
+          with open('publish/wwwroot-gh/index.html', 'r') as f:
+              content = f.read()
+          print('BEFORE:', re.search(r'<base[^>]*>', content).group())
+          content = re.sub(r'<base\s+href=\"[^\"]*\"\s*/>', '<base href=\"/EthiopianCalendarPortal/\" />', content)
+          print('AFTER:', re.search(r'<base[^>]*>', content).group())
+          with open('publish/wwwroot-gh/index.html', 'w') as f:
+              f.write(content)
+          "
           cp publish/wwwroot-gh/index.html publish/wwwroot-gh/404.html
 
       - name: Upload GitHub Pages artifact

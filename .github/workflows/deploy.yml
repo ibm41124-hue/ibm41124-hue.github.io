@@ -37,10 +37,16 @@ jobs:
       - name: Copy index.html to 404.html
         run: cp publish/wwwroot/index.html publish/wwwroot/404.html
 
+      - name: Set base href for GitHub Pages
+        run: |
+          cp -r publish/wwwroot publish/wwwroot-gh
+          sed -i 's|<base href="/" />|<base href="/EthiopianCalendarPortal/" />|g' publish/wwwroot-gh/index.html
+          cp publish/wwwroot-gh/index.html publish/wwwroot-gh/404.html
+
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: publish/wwwroot
+          path: publish/wwwroot-gh
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3

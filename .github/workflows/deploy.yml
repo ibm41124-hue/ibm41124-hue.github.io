@@ -29,7 +29,7 @@ jobs:
         run: dotnet workload install wasm-tools
 
       - name: Publish
-        run: dotnet publish EthiopianCalendarPortal/EthiopianCalendarPortal.csproj -c Release -o publish
+        run: dotnet publish EthiopianCalendarPortal/EthiopianCalendarPortal.csproj -c Release -o publish -p:CompressionEnabled=false
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
@@ -41,15 +41,6 @@ jobs:
           echo "=== base href check ==="
           grep "base href" publish/wwwroot-gh/index.html
           cp publish/wwwroot-gh/index.html publish/wwwroot-gh/404.html
-
-      - name: Verify wwwroot-gh contents
-        run: |
-          echo "=== Root files ==="
-          ls -la publish/wwwroot-gh/
-          echo "=== CSS folder ==="
-          ls -la publish/wwwroot-gh/css/
-          echo "=== Framework folder ==="
-          ls -la publish/wwwroot-gh/_framework/ | head -10
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3

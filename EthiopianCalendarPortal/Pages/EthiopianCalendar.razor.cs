@@ -15,7 +15,8 @@ namespace EthiopianCalendarPortal.Pages
         protected int todayEthiopianMonth = 8;
         protected int todayEthiopianYear = 2018;
 
-        protected readonly string[] weekdayHeaders = { "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሑድ" };
+        // Sunday-first weekday headers
+        protected readonly string[] weekdayHeaders = { "እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ" };
 
         private readonly (string Amharic, string English)[] monthNames = {
             ("መስከረም", "Meskerem"), ("ጥቅምት", "Tikimt"), ("ኅዳር", "Hidar"),
@@ -26,12 +27,6 @@ namespace EthiopianCalendarPortal.Pages
         };
 
         private MonthModel? currentMonth => (monthsData != null && currentMonthIndex >= 0 && currentMonthIndex < monthsData.Count) ? monthsData[currentMonthIndex] : null;
-
-        private static readonly string[] GregorianMonthNames =
-        {
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        };
 
         protected override void OnInitialized()
         {
@@ -81,7 +76,10 @@ namespace EthiopianCalendarPortal.Pages
                 : new int[] { 11, 11, 10, 10, 9, 8, 10, 9, 9, 8, 8, 7, 6 };
 
             DateTime newYearDate = new DateTime(targetGregorianYear, 9, add_nn[0]);
-            int currentWeekdayOffset = ((int)newYearDate.DayOfWeek + 6) % 7;
+
+            // FIXED: Sunday-first offset (C# DayOfWeek: Sunday = 0)
+            int currentWeekdayOffset = (int)newYearDate.DayOfWeek;
+
             DateTime runningGregorianDate = newYearDate;
 
             var movableHolidays = CalculateBahireHasabMovableFeasts(displayedYear);
@@ -267,41 +265,5 @@ namespace EthiopianCalendarPortal.Pages
             if (bgClass.Contains("info")) return "monthly";
             return "";
         }
-    }
-
-    public static class EthiopianCalendarConverter
-    {
-        private static readonly string[] MonthNames =
-        {
-            "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
-            "Megabit", "Miazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagumē"
-        };
-
-        private const int EthiopianEpoch = 2796;
-
-        public static (int Year, int Month, int Day, string MonthName) FromGregorian(int year, int month, int day)
-        {
-            long rd = GregorianToFixed(year, month, day);
-            return FixedToEthiopian(rd);
-        }
-
-        private static long GregorianToFixed(int year, int month, int day)
-        {
-            long y = year - 1;
-            bool isLeap = (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0);
-            int monthAdj = month <= 2 ? 0 : (isLeap ? -1 : -2);
-            return 365L * y + y / 4 - y / 100 + y / 400 + (367 * month - 362) / 12 + monthAdj + day;
-        }
-
-        private static (int, int, int, string) FixedToEthiopian(long rd)
-        {
-            int year = (int)((4L * (rd - EthiopianEpoch) + 1463) / 1461);
-            int month = (int)((rd - EthiopianToFixed(year, 1, 1)) / 30) + 1;
-            int day = (int)(rd - EthiopianToFixed(year, month, 1)) + 1;
-            return (year, month, day, MonthNames[month - 1]);
-        }
-
-        private static long EthiopianToFixed(int year, int month, int day) =>
-            EthiopianEpoch - 1L + 365L * (year - 1) + (year - 1) / 4 + 30 * (month - 1) + day;
     }
 }

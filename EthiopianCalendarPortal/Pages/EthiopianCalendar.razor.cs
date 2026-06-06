@@ -11,12 +11,22 @@ namespace EthiopianCalendarPortal.Pages
         protected int inputYear = 2018;
         protected int displayedYear;
         protected List<MonthModel>? monthsData;
-        protected int todayEthiopianDay = 19;
-        protected int todayEthiopianMonth = 8;
+        protected int todayEthiopianDay = 1;
+        protected int todayEthiopianMonth = 0;
         protected int todayEthiopianYear = 2018;
 
-        // Sunday-first weekday headers
         protected readonly string[] weekdayHeaders = { "እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ" };
+
+        private static readonly string[] EthiopianMonthAmharic = {
+            "መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት",
+            "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜ"
+        };
+
+        private static readonly string[] EthiopianDayAmharic = {
+            "", "፩", "፪", "፫", "፬", "፭", "፮", "፯", "፰", "፱", "፲",
+            "፲፩", "፲፪", "፲፫", "፲፬", "፲፭", "፲፮", "፲፯", "፲፰", "፲፱", "፳",
+            "፳፩", "፳፪", "፳፫", "፳፬", "፳፭", "፳፮", "፳፯", "፳፰", "፳፱", "፴"
+        };
 
         private readonly (string Amharic, string English)[] monthNames = {
             ("መስከረም", "Meskerem"), ("ጥቅምት", "Tikimt"), ("ኅዳር", "Hidar"),
@@ -26,42 +36,69 @@ namespace EthiopianCalendarPortal.Pages
             ("ጳጉሜ", "Pagume")
         };
 
-        private MonthModel? currentMonth => (monthsData != null && currentMonthIndex >= 0 && currentMonthIndex < monthsData.Count) ? monthsData[currentMonthIndex] : null;
+        private MonthModel? currentMonth => (monthsData != null && currentMonthIndex >= 0 && currentMonthIndex < monthsData.Count)
+            ? monthsData[currentMonthIndex] : null;
 
         protected override void OnInitialized()
         {
             DateTime today = DateTime.UtcNow;
-            todayEthiopianYear = ConvertGregorianToEthiopianYear(today);
-            todayEthiopianMonth = ConvertGregorianToEthiopianMonth(today);
-            todayEthiopianDay = ConvertGregorianToEthiopianDay(today);
+            var (ecYear, ecMonth, ecDay) = GregorianToEthiopian(today.Year, today.Month, today.Day);
+            todayEthiopianYear = ecYear;
+            todayEthiopianMonth = ecMonth - 1; // 0-indexed
+            todayEthiopianDay = ecDay;
 
             inputYear = todayEthiopianYear;
             GenerateCalendar();
             currentMonthIndex = todayEthiopianMonth;
         }
 
-        private int ConvertGregorianToEthiopianYear(DateTime gregorianDate)
+        // ── Beyene-Kudlek algorithm (authoritative) ───────────────────────────
+
+        private static int GregorianToJDN(int year, int month, int day)
         {
-            var res = EthiopianCalendarConverter.FromGregorian(gregorianDate.Year, gregorianDate.Month, gregorianDate.Day);
-            return res.Year;
+            int a = (14 - month) / 12;
+            int y = year + 4800 - a;
+            int m = month + 12 * a - 3;
+            return day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
         }
 
-        private int ConvertGregorianToEthiopianMonth(DateTime gregorianDate)
+        private static (int year, int month, int day) JDNToEthiopian(int jdn)
         {
-            var res = EthiopianCalendarConverter.FromGregorian(gregorianDate.Year, gregorianDate.Month, gregorianDate.Day);
-            return res.Month - 1;
+            const int jdOffset = 1723856;
+            int r = (jdn - jdOffset) % 1461;
+            int n = r % 365 + 365 * (r / 1460);
+            int year  = 4 * ((jdn - jdOffset) / 1461) + r / 365 - r / 1460;
+            int month = n / 30 + 1;
+            int day   = n % 30 + 1;
+            return (year, month, day);
         }
 
-        private int ConvertGregorianToEthiopianDay(DateTime gregorianDate)
+        private static (int year, int month, int day) GregorianToEthiopian(int gcYear, int gcMonth, int gcDay)
         {
-            var res = EthiopianCalendarConverter.FromGregorian(gregorianDate.Year, gregorianDate.Month, gregorianDate.Day);
-            return res.Day;
+            return JDNToEthiopian(GregorianToJDN(gcYear, gcMonth, gcDay));
         }
+
+        // ── Today label ───────────────────────────────────────────────────────
+
+        protected string GetTodayEthiopianLabel()
+        {
+            var monthName = EthiopianMonthAmharic[todayEthiopianMonth]; // 0-indexed
+            var dayAmharic = todayEthiopianDay >= 1 && todayEthiopianDay <= 30
+                ? EthiopianDayAmharic[todayEthiopianDay]
+                : todayEthiopianDay.ToString();
+            return $"{monthName} {dayAmharic} ቀን {todayEthiopianYear} ዓ.ም";
+        }
+
+        // ── Today check ───────────────────────────────────────────────────────
 
         protected bool IsToday(int ethiopianDay)
         {
-            return ethiopianDay == todayEthiopianDay && currentMonthIndex == todayEthiopianMonth && displayedYear == todayEthiopianYear;
+            return ethiopianDay == todayEthiopianDay
+                && currentMonthIndex == todayEthiopianMonth
+                && displayedYear == todayEthiopianYear;
         }
+
+        // ── Calendar generation ───────────────────────────────────────────────
 
         protected void GenerateCalendar()
         {
@@ -76,10 +113,7 @@ namespace EthiopianCalendarPortal.Pages
                 : new int[] { 11, 11, 10, 10, 9, 8, 10, 9, 9, 8, 8, 7, 6 };
 
             DateTime newYearDate = new DateTime(targetGregorianYear, 9, add_nn[0]);
-
-            // FIXED: Sunday-first offset (C# DayOfWeek: Sunday = 0)
             int currentWeekdayOffset = (int)newYearDate.DayOfWeek;
-
             DateTime runningGregorianDate = newYearDate;
 
             var movableHolidays = CalculateBahireHasabMovableFeasts(displayedYear);
@@ -135,6 +169,8 @@ namespace EthiopianCalendarPortal.Pages
             if (monthsData != null && currentMonthIndex < monthsData.Count - 1)
                 currentMonthIndex++;
         }
+
+        // ── Bahire Hasab movable feasts ───────────────────────────────────────
 
         private Dictionary<int, string> CalculateBahireHasabMovableFeasts(int ethiopianYear)
         {
@@ -204,18 +240,16 @@ namespace EthiopianCalendarPortal.Pages
         {
             int d2 = (d1 + x) % 30;
             int m2 = m1 + (d1 + x) / 30;
-            if (d2 == 0)
-            {
-                d2 = 30;
-                m2 = m2 - 1;
-            }
+            if (d2 == 0) { d2 = 30; m2--; }
             return (m2, d2);
         }
 
+        // ── Fixed feasts ──────────────────────────────────────────────────────
+
         private void AssignFixedFeasts(int month, int day, DayModel target)
         {
-            if (day == 5) { target.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; target.BgClass = "bg-info text-dark opacity-75"; }
-            else if (day == 7) { target.HolidayName = "ሥላሴ (Holy Trinity)"; target.BgClass = "bg-info text-dark opacity-75"; }
+            if (day == 5)  { target.HolidayName = "አቡነ ገብረ መንፈስ ቅዱስ"; target.BgClass = "bg-info text-dark opacity-75"; }
+            else if (day == 7)  { target.HolidayName = "ሥላሴ (Holy Trinity)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 12) { target.HolidayName = "ቅዱስ ሚካኤል (St. Michael)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 16) { target.HolidayName = "ቅድስት ኪዳነ ምሕረት (Kidane Mihret)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 19) { target.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; target.BgClass = "bg-info text-dark opacity-75"; }
@@ -224,11 +258,11 @@ namespace EthiopianCalendarPortal.Pages
             else if (day == 27) { target.HolidayName = "መድኃኔዓለም (Savior of the World)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 29) { target.HolidayName = "በዓለ ወልድ (Feast of the Son)"; target.BgClass = "bg-info text-dark opacity-75"; }
 
-            if (month == 1 && day == 1) { target.HolidayName = "እንቁጣጣሽ / New Year"; target.BgClass = "bg-warning fw-bold text-dark"; }
+            if (month == 1 && day == 1)  { target.HolidayName = "እንቁጣጣሽ / New Year"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 1 && day == 17) { target.HolidayName = "መስቀል / Meskel"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 1 && day == 21) { target.HolidayName = "ብዙኃን ማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 2 && day == 27) { target.HolidayName = "የመድኃኔዓለም ዓመታዊ በዓል (የስቅለት መታሰቢያ)"; target.BgClass = "bg-warning fw-bold text-dark"; }
-            else if (month == 3 && day == 6) { target.HolidayName = "ደብረ ቁስቋም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 3 && day == 6)  { target.HolidayName = "ደብረ ቁስቋም"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 3 && day == 21) { target.HolidayName = "ጽዮን ማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 4 && day == 19) { target.HolidayName = "በዓለ ቅዱስ ገብርኤል"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 4 && day == 29) { target.HolidayName = "ልደት / Christmas (Genna)"; target.BgClass = "bg-warning fw-bold text-dark"; }
@@ -238,22 +272,24 @@ namespace EthiopianCalendarPortal.Pages
             else if (month == 6 && day == 16) { target.HolidayName = "በዓለ ቅድስት ኪዳነ ምሕረት"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 7 && day == 27) { target.HolidayName = "በዓለ መድኃኔዓለም (ጥንተ ስቅለት)"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 8 && day == 23) { target.HolidayName = "በዓለ ቅዱስ ጊዮርጊስ"; target.BgClass = "bg-warning fw-bold text-dark"; }
-            else if (month == 9 && day == 1) { target.HolidayName = "ልደታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 9 && day == 1)  { target.HolidayName = "ልደታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 9 && day == 21) { target.HolidayName = "ደብረ ምጥማቅ"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 10 && day == 12) { target.HolidayName = "በዓለ ቅዱስ ሚካኤል"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 10 && day == 21) { target.HolidayName = "ሕንጸተ ቤታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
-            else if (month == 11 && day == 5) { target.HolidayName = "ጴጥሮስ ወጳውሎስ"; target.BgClass = "bg-warning fw-bold text-dark"; }
+            else if (month == 11 && day == 5)  { target.HolidayName = "ጴጥሮስ ወጳውሎስ"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 11 && day == 19) { target.HolidayName = "በዓለ ቅዱስ ገብርኤል"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 12 && day == 13) { target.HolidayName = "ደብረ ታቦር / Buhe"; target.BgClass = "bg-warning fw-bold text-dark"; }
             else if (month == 12 && day == 16) { target.HolidayName = "ፍልሰታ ለማርያም"; target.BgClass = "bg-warning fw-bold text-dark"; }
         }
 
+        // ── CSS helpers ───────────────────────────────────────────────────────
+
         protected string GetTypeClass(string? bgClass)
         {
             if (string.IsNullOrEmpty(bgClass)) return "";
             if (bgClass.Contains("warning")) return "is-annual";
-            if (bgClass.Contains("danger")) return "is-movable";
-            if (bgClass.Contains("info")) return "is-monthly";
+            if (bgClass.Contains("danger"))  return "is-movable";
+            if (bgClass.Contains("info"))    return "is-monthly";
             return "";
         }
 
@@ -261,8 +297,8 @@ namespace EthiopianCalendarPortal.Pages
         {
             if (string.IsNullOrEmpty(bgClass)) return "";
             if (bgClass.Contains("warning")) return "annual";
-            if (bgClass.Contains("danger")) return "movable";
-            if (bgClass.Contains("info")) return "monthly";
+            if (bgClass.Contains("danger"))  return "movable";
+            if (bgClass.Contains("info"))    return "monthly";
             return "";
         }
     }

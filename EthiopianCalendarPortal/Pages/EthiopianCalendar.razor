@@ -223,8 +223,8 @@
                 var idx = i;
                 var isPagume = (i == 12);
                 var isActive = (idx == currentMonthIndex);
-                <button class="ec-dot-btn @(isPagume ? "pagume" : "") @(isActive ? "active" : "")" 
-                        title="@monthsData[i].AmharicName (@monthsData[i].EnglishName)" 
+                <button class="ec-dot-btn @(isPagume ? "pagume" : "") @(isActive ? "active" : "")"
+                        title="@monthsData[i].AmharicName (@monthsData[i].EnglishName)"
                         @onclick="() => { currentMonthIndex = idx; }"></button>
             }
         </div>
@@ -242,7 +242,7 @@
                     @for (int w = 0; w < weekdayHeaders.Length; w++)
                     {
                         var wIdx = w;
-                        <div class="ec-wday @(wIdx == 6 ? "sunday" : "")">@weekdayHeaders[wIdx]</div>
+                        <div class="ec-wday @(wIdx == 0 ? "sunday" : "")">@weekdayHeaders[wIdx]</div>
                     }
                 </div>
                 <div class="ec-days-grid">
@@ -254,7 +254,7 @@
                     {
                         var typeClass = GetTypeClass(d.BgClass);
                         var colIndex = (currentMonth.StartWeekday + d.EthiopianDay - 1) % 7;
-                        var isSunday = (colIndex == 6);
+                        var isSunday = (colIndex == 0);
                         var dotClass = GetDotClass(d.BgClass);
                         var hasHoliday = !string.IsNullOrEmpty(d.HolidayName);
                         var isToday = IsToday(d.EthiopianDay);

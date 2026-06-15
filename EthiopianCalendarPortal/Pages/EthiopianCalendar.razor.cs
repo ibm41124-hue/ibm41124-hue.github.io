@@ -255,6 +255,7 @@ namespace EthiopianCalendarPortal.Pages
             else if (day == 19) { target.HolidayName = "ቅዱስ ገብርኤል (St. Gabriel)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 21) { target.HolidayName = "ቅድስት ማርያም (St. Mary)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 23) { target.HolidayName = "ቅዱስ ጊዮርጊስ (St. George)"; target.BgClass = "bg-info text-dark opacity-75"; }
+             else if (day == 24) { target.HolidayName = "ቅዱስ አቡነ ተክለ ሃይማኖት (St. Tekle Haymanot)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 27) { target.HolidayName = "መድኃኔዓለም (Savior of the World)"; target.BgClass = "bg-info text-dark opacity-75"; }
             else if (day == 29) { target.HolidayName = "በዓለ ወልድ (Feast of the Son)"; target.BgClass = "bg-info text-dark opacity-75"; }
 
